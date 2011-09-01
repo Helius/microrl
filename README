@@ -1,1 +1,43 @@
-microrl - micro read line library for small and embedded devices
+microrl - micro read line library for small and embedded devices with some basic VT100 support.
+
+1. DESCRIPTION
+
+microrl library designed for use in small and embedded devices where we want to have command line interface. Main goal is make compact, small memory consuming but powerfull interfaces, with support navigation through command line with cursor, HOME, END keys, hot key like Ctrl+U and other, history and completion feature.
+
+2. FEATURE
+
+	** config.h file
+	 - Turn on/off feature for add functionally/decrease memory via config files.
+
+	** hot keys
+	 - cursor keys
+	 - backspace
+	 - HOME, END keys
+	 - Ctrl+U (delete from cursor to begin of line)
+	 - ..
+
+	** history
+	 - Static ring buffer history for memory saving. Number of commands saved to history depends from commands length and buffer size (defined in config)
+
+	** completion
+	 - via completion callback
+
+3. INSTALL
+
+Requests: c99 (gnu99) compiler with libc. In you code you have to provide some callbacks for library work.
+
+You need to do few simple steps:
+
+a) Include microrl.h file to you project.
+
+b) Create 'microrl_t' object, and call 'microrl_init' func, with print callback pointer. Print callback pointer is pointer to function that call by library if it's need to put text to terminal. Text string always is null terminated.
+
+c) Call 'microrl_set_execute_callback' with pointer to you function, that will call if user press enter in terminal. Execute callback give a 'argc', 'argv' parametrs, like 'main' func in application. All token in 'argv' is null terminated. So you can simply walk through argv and handle commands.
+
+d) If you want completion support if user press TAB key, call 'microrl_set_completion_callback' and set you callback. It also give 'argc' and 'argv' arguments, so iterate through it and return set of complete variants. 
+
+e) Look at 'config.h' file, it's possible to tune library for you requiring and turn on/off feature. 
+
+f) now you just call 'microrl_insert_char' on each received from input stream (usart, network, etc) chars.
+
+Author: Eugene Samoylov aka Helius (ghelius@gmail.com)
