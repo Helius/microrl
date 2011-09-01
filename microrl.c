@@ -219,13 +219,15 @@ inline static void terminal_newline (microrl_t * this)
 
 //*****************************************************************************
 // set cursor at position from begin cmdline (after prompt) + offset
-static void terminal_forw_cursor (microrl_t * this, int offset)
+static void terminal_move_cursor (microrl_t * this, int offset)
 {
-	char str[16];
-	if (offset) {
+	char str[16] = {0,};
+	if (offset > 0) {
 		snprintf (str, 12, "\033[%dC", offset);
-		this->print (str);
+	} else if (offset < 0) {
+		snprintf (str, 12, "\033[%dD", abs(offset));
 	}
+	this->print (str);
 }
 
 //*****************************************************************************
@@ -256,7 +258,7 @@ static void terminal_print_line (microrl_t * this, int offset)
 	// reset terminal cursor at begin of line
 	terminal_reset_cursor (this);
 	// set terminal cursor at microrl cursor
-	terminal_forw_cursor (this, offset);
+	terminal_move_cursor (this, offset);
 }
 
 //*****************************************************************************
@@ -319,14 +321,18 @@ static int escape_process (microrl_t * this, char ch)
 			return 1;
 		} else if (ch == 'C') {
 			if (this->cursor < this->cmdlen) {
-				this->print ("\033[C");
+//				this->print ("\033[C");
+//				
+				terminal_move_cursor (this, 1);
 				this->cursor++;
 			}
 			return 1;
 		} else if (ch == 'D') {
 			if (this->cursor > 0) {
+//				
+//				this->print ("\033[D");
+				terminal_move_cursor (this, -1);
 				this->cursor--;
-				this->print ("\033[D");
 			}
 			return 1;
 		} else if (ch == '7') {
@@ -342,7 +348,7 @@ static int escape_process (microrl_t * this, char ch)
 				this->cursor = 0;
 				return 1;
 			} else if (seq == _ESC_END) {
-				terminal_forw_cursor (this, this->cmdlen-this->cursor);
+				terminal_move_cursor (this, this->cmdlen-this->cursor);
 				this->cursor = this->cmdlen;
 				return 1;
 			}
@@ -469,7 +475,7 @@ void microrl_insert_char (microrl_t * this, int ch)
 			break;
 			//-----------------------------------------------------
 			case KEY_ENQ: // ^E
-				terminal_forw_cursor (this, this->cmdlen-this->cursor);
+				terminal_move_cursor (this, this->cmdlen-this->cursor);
 				this->cursor = this->cmdlen;
 			break;
 			//-----------------------------------------------------
