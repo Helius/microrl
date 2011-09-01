@@ -55,6 +55,11 @@ small and embedded devices.*/
 #define _RING_HISTORY_LEN 36
 #endif
 
+/*
+Enable Handling terminal ESC sequence. If disabling, then cursor arrow, HOME, END will not work,
+use Ctrl+A(B,F,P,N,A,E,H,K,U) see README, but decrease code memory.*/
+#define _USE_ESC_SEQ
+
 /********** END CONFIG SECTION ************/
 
 #endif

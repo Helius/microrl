@@ -11,11 +11,16 @@ microrl library designed for use in small and embedded devices where we want to 
 	 - Turn on/off feature for add functional/decrease memory via config files.
 
 	** hot keys
-	 - cursor keys
-	 - backspace
-	 - HOME, END keys
-	 - Ctrl+U, Ctrl+K, Ctrl+A, Ctrl+E hotkeys
-	 - ..
+	 - backspace, cursor arrow, HOME, END keys
+	 - Ctrl+U (cut line from cursor to begin) 
+	 - Ctrl+K (cut line from cursor to end) 
+	 - Ctrl+A (like HOME) 
+	 - Ctrl+E (like END)
+	 - Ctrl+H (like backspace)
+	 - Ctrl+B (like cursor arrow left) 
+	 - Ctrl+F (like cursor arrow right)
+	 - Ctrl+P (like cursor arrow up)
+	 - Ctrl+N (like cursor arrow down)
 
 	** history
 	 - Static ring buffer history for memory saving. Number of commands saved to history depends from commands length and buffer size (defined in config)

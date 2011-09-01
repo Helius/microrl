@@ -1,5 +1,5 @@
 /*
-Autor: Samoylov Eugene aka Helius (ghelius@gmail.com)
+Author: Samoylov Eugene aka Helius (ghelius@gmail.com)
 BUGS and TODO:
 *)
 */
@@ -293,6 +293,7 @@ void microrl_set_execute_callback (microrl_t * this, int (*execute)(int, const c
 	this->execute = execute;
 }
 
+#ifdef _USE_ESC_SEQ
 //*****************************************************************************
 static int escape_process (microrl_t * this, char ch)
 {
@@ -321,16 +322,12 @@ static int escape_process (microrl_t * this, char ch)
 			return 1;
 		} else if (ch == 'C') {
 			if (this->cursor < this->cmdlen) {
-//				this->print ("\033[C");
-//				
 				terminal_move_cursor (this, 1);
 				this->cursor++;
 			}
 			return 1;
 		} else if (ch == 'D') {
 			if (this->cursor > 0) {
-//				
-//				this->print ("\033[D");
 				terminal_move_cursor (this, -1);
 				this->cursor--;
 			}
@@ -356,7 +353,7 @@ static int escape_process (microrl_t * this, char ch)
 	}
 	return 0;
 }
-
+#endif
 
 //*****************************************************************************
 // insert len char of text at cursor position
@@ -423,12 +420,15 @@ void microrl_get_complite (microrl_t * this)
 void microrl_insert_char (microrl_t * this, int ch)
 {
 	int status;
+	
+#ifdef _USE_ESC_SEQ
 	static int escape = false;
-//	DBG (" (%c:%d) ", ch, ch);
+	
 	if (escape) {
 		if (escape_process(this, ch))
 			escape = 0;
 	} else {
+#endif
 		switch (ch) {
 			//-----------------------------------------------------
 			case KEY_CR:
@@ -460,7 +460,9 @@ void microrl_insert_char (microrl_t * this, int ch)
 #endif
 			//-----------------------------------------------------
 			case KEY_ESC:
+#ifdef _USE_ESC_SEQ
 				escape = 1;
+#endif
 			break;
 			//-----------------------------------------------------
 			case KEY_NAK: // ^U
@@ -484,7 +486,46 @@ void microrl_insert_char (microrl_t * this, int ch)
 				this->cursor = 0;
 			break;
 			//-----------------------------------------------------
+			case KEY_ACK: // ^F
+			if (this->cursor < this->cmdlen) {
+				terminal_move_cursor (this, 1);
+				this->cursor++;
+			}
+			break;
+			//-----------------------------------------------------
+			case KEY_STX: // ^B
+			if (this->cursor) {
+				terminal_move_cursor (this, -1);
+				this->cursor--;
+			}
+			break;
+			//-----------------------------------------------------
+			case KEY_DLE: //^P
+#ifdef _USE_HISTORY
+			{
+				int len = hist_restore_line (&this->ring_hist, this->cmdline, _HIST_UP);
+				if (len) {
+					this->cursor = this->cmdlen = len;
+					terminal_print_line (this, this->cursor);
+				}
+			}
+#endif
+			break;
+			//-----------------------------------------------------
+			case KEY_SO: //^N
+#ifdef _USE_HISTORY
+			{
+				int len = hist_restore_line (&this->ring_hist, this->cmdline, _HIST_DOWN);
+				if (len) {
+					this->cursor = this->cmdlen = len;
+					terminal_print_line (this, this->cursor);
+				}
+			}
+#endif
+			break;
+			//-----------------------------------------------------
 			case KEY_DEL: // Backspace
+			case KEY_BS: // ^U
 				microrl_backspace (this);
 			break;
 			//-----------------------------------------------------
@@ -496,5 +537,7 @@ void microrl_insert_char (microrl_t * this, int ch)
 			
 			break;
 		}
+#ifdef _USE_ESC_SEQ
 	}
+#endif
 }
