@@ -4,13 +4,17 @@ microrl - micro read line library for small and embedded devices with some basic
 
 microrl library designed for use in small and embedded devices where we want to have command line interface. Main goal is make compact, small memory consuming but powerfull interfaces, with support navigation through command line with cursor, HOME, END keys, hot key like Ctrl+U and other, history and completion feature.
 
+Library needs 2 obliging callbacks, first called for print to output stream. Second callback called then user press Enter, it give command line tokens for you handling. There is third not obliging callbacks, library call him then user press TAB and waiting for command completion, it also give you command line token, but you need return completion set.
+
+For library work, you can just put chars from input stream by calling microrl_insert_char.
+
 
 2. FEATURE
 
 	** config.h file
 	 - Turn on/off feature for add functional/decrease memory via config files.
 
-	** hot keys
+	** hot keys support
 	 - backspace, cursor arrow, HOME, END keys
 	 - Ctrl+U (cut line from cursor to begin) 
 	 - Ctrl+K (cut line from cursor to end) 
@@ -47,7 +51,7 @@ e) Look at 'config.h' file, for tune library for you requiring.
 
 f) Now you just call 'microrl_insert_char' on each received from input stream (usart, network, etc) chars.
 
-
+See microrl_tst.c for example library usage.
 
 
 
