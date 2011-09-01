@@ -14,7 +14,7 @@ microrl library designed for use in small and embedded devices where we want to 
 	 - cursor keys
 	 - backspace
 	 - HOME, END keys
-	 - Ctrl+U (delete from cursor to begin of line)
+	 - Ctrl+U, Ctrl+K, Ctrl+A, Ctrl+E hotkeys
 	 - ..
 
 	** history

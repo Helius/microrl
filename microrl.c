@@ -200,26 +200,26 @@ static int split (microrl_t * this)
 
 
 //*****************************************************************************
-static void print_prompt (microrl_t * this)
+inline static void print_prompt (microrl_t * this)
 {
 	this->print (this->prompt_str);
 }
 
 //*****************************************************************************
-static void terminal_backspace (microrl_t * this)
+inline static void terminal_backspace (microrl_t * this)
 {
 		this->print ("\033[D \033[D");
 }
 
 //*****************************************************************************
-static void terminal_newline (microrl_t * this)
+inline static void terminal_newline (microrl_t * this)
 {
 	this->print ("\n\r");
 }
 
 //*****************************************************************************
 // set cursor at position from begin cmdline (after prompt) + offset
-static void terminal_set_cursor (microrl_t * this, int offset)
+static void terminal_forw_cursor (microrl_t * this, int offset)
 {
 	char str[16];
 	if (offset) {
@@ -256,7 +256,7 @@ static void terminal_print_line (microrl_t * this, int offset)
 	// reset terminal cursor at begin of line
 	terminal_reset_cursor (this);
 	// set terminal cursor at microrl cursor
-	terminal_set_cursor (this, offset);
+	terminal_forw_cursor (this, offset);
 }
 
 //*****************************************************************************
@@ -338,16 +338,12 @@ static int escape_process (microrl_t * this, char ch)
 		} 
 	} else if (ch == '~') {
 			if (seq == _ESC_HOME) {
-				while (this->cursor>0) {
-					this->print ("\033[D");
-					this->cursor--;
-				}
+				terminal_reset_cursor (this);
+				this->cursor = 0;
 				return 1;
 			} else if (seq == _ESC_END) {
-					while (this->cursor < this->cmdlen) {
-						this->print ("\033[C");
-						this->cursor++;
-					}
+				terminal_forw_cursor (this, this->cmdlen-this->cursor);
+				this->cursor = this->cmdlen;
 				return 1;
 			}
 		
@@ -449,23 +445,38 @@ void microrl_insert_char (microrl_t * this, int ch)
 				this->ring_hist.cur = 0;
 #endif
 			
-				break;
+			break;
 			//-----------------------------------------------------
 #ifdef _USE_COMPLETE
 			case KEY_HT:
 			microrl_get_complite (this);
-				break;
+			break;
 #endif
 			//-----------------------------------------------------
 			case KEY_ESC:
 				escape = 1;
-				break;
+			break;
 			//-----------------------------------------------------
-			case KEY_NAK: // Ctrl+U
+			case KEY_NAK: // ^U
 					while (this->cursor > 0) {
 					microrl_backspace (this);
 				}
-				break;
+			break;
+			//-----------------------------------------------------
+			case KEY_VT:  // ^K
+				this->print ("\033[K");
+				this->cmdlen = this->cursor;
+			break;
+			//-----------------------------------------------------
+			case KEY_ENQ: // ^E
+				terminal_forw_cursor (this, this->cmdlen-this->cursor);
+				this->cursor = this->cmdlen;
+			break;
+			//-----------------------------------------------------
+			case KEY_SOH: // ^A
+				terminal_reset_cursor (this);
+				this->cursor = 0;
+			break;
 			//-----------------------------------------------------
 			case KEY_DEL: // Backspace
 				microrl_backspace (this);
