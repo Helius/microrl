@@ -41,7 +41,7 @@ int execute (int argc, const char * const * tkn_arr)
 			print ("ERROR: Command '");
 			print (tkn_arr[i]);
 			print ("' Not found.\n");
-			return 1; //TODO:remove it, need to return 1 if command recognize
+//			return 1; //TODO:remove it, need to return 1 if command recognize
 		}
 		i++;
 	}

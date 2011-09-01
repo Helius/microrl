@@ -1,7 +1,7 @@
 /*
 Autor: Samoylov Eugene aka Helius (ghelius@gmail.com)
 BUGS and TODO:
-*) if HOME press on not empty cmdline, and input char, cursor jump to end of cmdline
+*)
 */
 
 #include <stdio.h>
@@ -217,14 +217,13 @@ static void terminal_newline (microrl_t * this)
 	this->print ("\n\r");
 }
 
+//*****************************************************************************
+// set cursor at position from begin cmdline (after prompt) + offset
 static void terminal_set_cursor (microrl_t * this, int offset)
 {
 	char str[16];
-	if (offset > 0) {
+	if (offset) {
 		snprintf (str, 12, "\033[%dC", offset);
-		this->print (str);
-	}	else if (offset < 0) {
-		snprintf (str, 12, "\033[%dD", abs(offset));
 		this->print (str);
 	}
 }
@@ -233,7 +232,7 @@ static void terminal_set_cursor (microrl_t * this, int offset)
 static void terminal_reset_cursor (microrl_t * this)
 {
 	char str[16];
-	snprintf (str, 16, "\033[%dD", _COMMAND_LINE_LEN);
+	snprintf (str, 16, "\033[%dD", _COMMAND_LINE_LEN + _PROMPT_LEN + 1);
 	this->print (str);
 	snprintf (str, 16, "\033[%dC", _PROMPT_LEN);
 	this->print (str);
@@ -361,10 +360,11 @@ static int escape_process (microrl_t * this, char ch)
 // insert len char of text at cursor position
 static int microrl_insert_text (microrl_t * this, char * text, int len)
 {
-	if (this->cmdlen + len < _COMMAND_LINE_LEN - 1) {
+//	DBG ("cmdlen %d\n", this->cmdlen);
+	if (this->cmdlen + len < _COMMAND_LINE_LEN) {
 		memmove (this->cmdline + this->cursor + len,
 						 this->cmdline + this->cursor,
-						 this->cmdlen - this->cursor + 2);
+						 this->cmdlen - this->cursor);
 		for (int i = 0; i < len; i++) {
 			this->cmdline [this->cursor + i] = text [i];
 			if (this->cmdline [this->cursor + i] == ' ') {
@@ -432,17 +432,15 @@ void microrl_insert_char (microrl_t * this, int ch)
 			case KEY_CR:
 			case KEY_LF:
 				terminal_newline (this);
+#ifdef _USE_HISTORY
+				if (this->cmdlen > 0)
+					hist_save_line (&this->ring_hist, this->cmdline, this->cmdlen);
+#endif
 				status = split (this);
 				if (status == -1)
 					this->print ("ERROR: Max token amount exseed\n");
-				if ((status > 0) && (this->execute != NULL)) {
-					if (this->execute (status, this->tkn_arr)) {
-#ifdef _USE_HISTORY
-						if (this->cmdlen > 0)
-							hist_save_line (&this->ring_hist, this->cmdline, this->cmdlen);
-#endif
-					}
-				}
+				if ((status > 0) && (this->execute != NULL)) 
+					this->execute (status, this->tkn_arr);
 				print_prompt (this);
 				this->cmdlen = 0;
 				this->cursor = 0;
@@ -478,6 +476,7 @@ void microrl_insert_char (microrl_t * this, int ch)
 				break;
 			if (microrl_insert_text (this, (char*)&ch, 1))
 				terminal_print_line (this, this->cursor);
+			
 			break;
 		}
 	}
