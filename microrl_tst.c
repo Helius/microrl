@@ -50,20 +50,31 @@ int execute (int argc, const char * const * tkn_arr)
 char ** complet (int argc, const char * const * argv)
 {
 	int j = 0;
+	
 	compl_world [0] = NULL;
+
+	// if there is tocken in cmdline
 	if (argc > 0) {
+		// get last entered tocken
 		char * bit = argv [argc-1];
+		// iterate through our available token and match it
 		for (int i = 0; i < _NUM_OF_CMD; i++) {
+			// if tocken is matched (text is part of our token starting from 0 char)
 			if (strstr(keyworld [i], bit) == keyworld [i]) {
+				// add it to completion set
 				compl_world [j++] = keyworld [i];
 			}
 		}
-	} else {
+	// if there is no token in cmdline, just print all available token
+	} else { 
 		for (; j < _NUM_OF_CMD; j++) {
 			compl_world[j] = keyworld [j];
 		}
 	}
+
+	// note! last ptr in array always must be NULL!!!
 	compl_world [j] = NULL;
+	// return set of variants
 	return compl_world;
 }
 
