@@ -42,6 +42,12 @@ You need to do few simple steps:
 a) Include microrl.h file to you project.
 
 b) Create 'microrl_t' object, and call 'microrl_init' func, with print callback pointer. Print callback pointer is pointer to function that call by library if it's need to put text to terminal. Text string always is null terminated.
+For example on linux PC print callback may be:
+	// print callback for microrl library
+	void print (char * str)
+	{
+		fprintf (stdout, "%s", str);
+	}
 
 c) Call 'microrl_set_execute_callback' with pointer to you function, that will call if user press enter in terminal. Execute callback give a 'argc', 'argv' parametrs, like 'main' func in application. All token in 'argv' is null terminated. So you can simply walk through argv and handle commands.
 
@@ -51,8 +57,30 @@ e) Look at 'config.h' file, for tune library for you requiring.
 
 f) Now you just call 'microrl_insert_char' on each received from input stream (usart, network, etc) chars.
 
-See microrl_tst.c for example library usage.
+Example of code:
 
+	//*****************************************************************************
+	int main (int argc, char ** argv)
+	{
+		// create microrl object and pointer on it
+		microrl_t rl;
+		microrl_t * prl = &rl;
+		// call init with ptr to microrl instance and print callback
+		microrl_init (prl, print);
+		// set callback for execute
+		microrl_set_execute_callback (prl, execute);
+		// set callback for completion
+		microrl_set_complite_callback (prl, complet);
+		
+		while (1) {
+			// put received char from stdin to microrl lib
+			char ch = get_char ();
+			microrl_insert_char (prl, ch);
+		}
+		return 0;
+	}
+
+See microrl_tst.c for example library usage.
 
 
 

@@ -15,6 +15,7 @@ char * world2 = "help";
 char * world3 = "list";
 
 //*****************************************************************************
+// print callback for microrl library
 void print (char * str)
 {
 	fprintf (stdout, "%s", str);
@@ -27,21 +28,19 @@ void print_help ()
 }
 
 //*****************************************************************************
+// execute callback for microrl library
 int execute (int argc, const char * const * tkn_arr)
 {
 	int i = 0;
-	DBG ("execute:\n");
 	while (i < argc) {
 		if (strcmp (tkn_arr[i], "help") == 0) {
-			print ("microrl library v 1.0\n");
+			print ("microrl library based shell v 1.0\n");
 			print_help ();
 			return 1;
 		} else {
-			DBG ("[%s] ", tkn_arr[i]);
-			print ("ERROR: Command '");
+			print ("command: '");
 			print (tkn_arr[i]);
 			print ("' Not found.\n");
-//			return 1; //TODO:remove it, need to return 1 if command recognize
 		}
 		i++;
 	}
@@ -49,7 +48,8 @@ int execute (int argc, const char * const * tkn_arr)
 }
 
 //*****************************************************************************
-char ** complit (int argc, const char * const * tkn_arr)
+// completion callback for microrl library
+char ** complet (int argc, const char * const * tkn_arr)
 {
 	DBG ("\ncomplite for:\n");
 	for (int i = 0; i < argc; i++) {
@@ -82,14 +82,18 @@ char get_char (void)
 //*****************************************************************************
 int main (int argc, char ** argv)
 {
-	// microrl object and pointer on it
+	// create microrl object and pointer on it
 	microrl_t rl;
 	microrl_t * prl = &rl;
+	// call init with ptr to microrl instance and print callback
 	microrl_init (prl, print);
+	// set callback for execute
 	microrl_set_execute_callback (prl, execute);
-	microrl_set_complite_callback (prl, complit);
+	// set callback for completion
+	microrl_set_complite_callback (prl, complet);
 	
 	while (1) {
+		// put received char from stdin to microrl lib
 		microrl_insert_char (prl, get_char());
 	}
 	return 0;

@@ -93,7 +93,7 @@ static void hist_save_line (ring_history_t * this, char * line, int len)
 	this->ring_buf [this->end] = 0;
 	this->cur = 0;
 //	DBG ("\nbegin %d, end %d\n", this->begin,  this->end);
-	print_hist (this);
+//	print_hist (this);
 }
 
 //*****************************************************************************
