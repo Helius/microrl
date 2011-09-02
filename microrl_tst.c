@@ -9,10 +9,7 @@
 #define DBG(...) printf("\033[33m");printf(__VA_ARGS__);printf("\033[0m");
 
 char ** compl_world [5];
-char * world0 = "fuck";
-char * world1 = "new";
-char * world2 = "help";
-char * world3 = "list";
+char * keyworld [] = {"fuck","help","list","function"};
 
 //*****************************************************************************
 // print callback for microrl library
@@ -49,18 +46,23 @@ int execute (int argc, const char * const * tkn_arr)
 
 //*****************************************************************************
 // completion callback for microrl library
-char ** complet (int argc, const char * const * tkn_arr)
+char ** complet (int argc, const char * const * argv)
 {
-	DBG ("\ncomplite for:\n");
-	for (int i = 0; i < argc; i++) {
-		DBG (" [%s]", tkn_arr[i]);
+	int j = 0;
+	compl_world [0] = NULL;
+	if (argc > 0) {
+		char * bit = argv [argc-1];
+		for (int i = 0; i < 4; i++) {
+			if (strstr(keyworld [i], bit) == keyworld [i]) {
+				compl_world [j++] = keyworld [i];
+			}
+		}
+	} else {
+		for (; j < 4; j++) {
+			compl_world[j] = keyworld [j];
+		}
 	}
-	DBG ("\n");
-	compl_world [0] = world0;
-	compl_world [1] = world1;
-	compl_world [2] = world2;
-	compl_world [3] = world3;
-	compl_world [4] = NULL;
+	compl_world [j] = NULL;
 	return compl_world;
 }
 

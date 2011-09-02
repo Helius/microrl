@@ -401,17 +401,20 @@ void microrl_get_complite (microrl_t * this)
 	int status = split (this);
 	if (this->get_completion != NULL) {
 		compl_token = this->get_completion (status, this->tkn_arr);
-		int i = 0;
-		while (compl_token [i] != NULL) {
-			this->print (compl_token[i]);
-			this->print (" ");
-			i++;
+		if (compl_token[0] != NULL) {
+			int i = 0;
+			terminal_newline (this);
+			while (compl_token [i] != NULL) {
+				this->print (compl_token[i]);
+				this->print (" ");
+				i++;
+			}
+			terminal_newline (this);
+			print_prompt (this);
+			terminal_print_line (this, 0);
+			for (int i = 0; i < this->cursor; i++)
+				this->print("\033[C");
 		}
-		terminal_newline (this);
-		print_prompt (this);
-		terminal_print_line (this, 0);
-		for (int i = 0; i < this->cursor; i++)
-			this->print("\033[C");
 	}
 }
 #endif
@@ -455,7 +458,7 @@ void microrl_insert_char (microrl_t * this, int ch)
 			//-----------------------------------------------------
 #ifdef _USE_COMPLETE
 			case KEY_HT:
-			microrl_get_complite (this);
+				microrl_get_complite (this);
 			break;
 #endif
 			//-----------------------------------------------------
