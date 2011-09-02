@@ -10,7 +10,7 @@ BUGS and TODO:
 #include <stdlib.h>
 #include "microrl.h"
 
-#define DBG(...) printf("\033[33m");printf(__VA_ARGS__);printf("\033[0m");
+#define DBG(...) fprintf(stderr, "\033[33m");fprintf(stderr,__VA_ARGS__);fprintf(stderr,"\033[0m");
 
 char * prompt_default = _PROMPT_DEFAUTL;
 
@@ -182,6 +182,7 @@ static int split (microrl_t * this)
 	int i = 0;
 	int ind = 0;
 	while (1) {
+		// go to the first whitespace (zerro for us)
 		while ((this->cmdline [ind] == '\0') && (ind < this->cmdlen)) {
 			ind++;
 		}
@@ -190,6 +191,7 @@ static int split (microrl_t * this)
 		if (i >= _COMMAND_TOKEN_NMB) {
 			return -1;
 		}
+		// go to the first NOT whitespace (not zerro for us)
 		while ((this->cmdline [ind] != '\0') && (ind < this->cmdlen)) {
 			ind++;
 		}
@@ -393,28 +395,68 @@ static void microrl_backspace (microrl_t * this)
 	}
 }
 
+
 #ifdef _USE_COMPLETE
+
 //*****************************************************************************
-void microrl_get_complite (microrl_t * this) 
+static int common_len (char ** arr)
+{
+	int len = 0;
+	int i = 1;
+	while (1) {
+		while (arr[i]!=NULL) {
+			if ((arr[i][len] != arr[i-1][len]) || 
+					(arr[i][len] == '\0') || 
+					(arr[i-1][len]=='\0')) 
+				return len;
+			len++;
+		}
+		i++;
+	}
+	return 0;
+}
+
+//*****************************************************************************
+static void microrl_get_complite (microrl_t * this) 
 {
 	char ** compl_token; 
 	int status = split (this);
-	if (this->get_completion != NULL) {
+	if ((status>0) && (this->get_completion != NULL)) {
+		if (this->cmdline[this->cursor-1] == '\0')
+			this->tkn_arr[status++] = "";
 		compl_token = this->get_completion (status, this->tkn_arr);
 		if (compl_token[0] != NULL) {
 			int i = 0;
-			terminal_newline (this);
-			while (compl_token [i] != NULL) {
-				this->print (compl_token[i]);
-				this->print (" ");
-				i++;
+			int len;
+
+			if (compl_token[1] == NULL) {
+				len = strlen (compl_token[0]);
+			} else {
+				len = common_len (compl_token);
+				terminal_newline (this);
+				while (compl_token [i] != NULL) {
+					this->print (compl_token[i]);
+					this->print (" ");
+					i++;
+				}
+				terminal_newline (this);
+				print_prompt (this);
 			}
-			terminal_newline (this);
-			print_prompt (this);
+			
+			if (len) {
+				int rm = strlen (this->tkn_arr[status-1]);
+				while (rm--)
+					microrl_backspace (this);
+				microrl_insert_text (this, compl_token[0], len);
+				if (compl_token[1] == NULL) {
+					microrl_insert_text (this, " ", 1);
+				}
+				
+			}
 			terminal_print_line (this, 0);
 			for (int i = 0; i < this->cursor; i++)
 				this->print("\033[C");
-		}
+		} 
 	}
 }
 #endif

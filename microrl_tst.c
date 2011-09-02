@@ -8,8 +8,9 @@
 
 #define DBG(...) printf("\033[33m");printf(__VA_ARGS__);printf("\033[0m");
 
-char ** compl_world [5];
-char * keyworld [] = {"fuck","help","list","function"};
+#define _NUM_OF_CMD 5
+char * keyworld [] = {"fuck","help","list","function", "lisp"};
+char ** compl_world [_NUM_OF_CMD + 1];
 
 //*****************************************************************************
 // print callback for microrl library
@@ -52,13 +53,13 @@ char ** complet (int argc, const char * const * argv)
 	compl_world [0] = NULL;
 	if (argc > 0) {
 		char * bit = argv [argc-1];
-		for (int i = 0; i < 4; i++) {
+		for (int i = 0; i < _NUM_OF_CMD; i++) {
 			if (strstr(keyworld [i], bit) == keyworld [i]) {
 				compl_world [j++] = keyworld [i];
 			}
 		}
 	} else {
-		for (; j < 4; j++) {
+		for (; j < _NUM_OF_CMD; j++) {
 			compl_world[j] = keyworld [j];
 		}
 	}
