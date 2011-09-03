@@ -99,6 +99,7 @@ int main (int argc, char ** argv)
 	// create microrl object and pointer on it
 	microrl_t rl;
 	microrl_t * prl = &rl;
+	DBG ("sizeof (microrl_t)= %d\n", sizeof(microrl_t));
 	// call init with ptr to microrl instance and print callback
 	microrl_init (prl, print);
 	// set callback for execute

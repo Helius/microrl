@@ -225,9 +225,9 @@ static void terminal_move_cursor (microrl_t * this, int offset)
 {
 	char str[16] = {0,};
 	if (offset > 0) {
-		snprintf (str, 12, "\033[%dC", offset);
+		snprintf (str, 16, "\033[%dC", offset);
 	} else if (offset < 0) {
-		snprintf (str, 12, "\033[%dD", abs(offset));
+		snprintf (str, 16, "\033[%dD", abs(offset));
 	}
 	this->print (str);
 }
@@ -236,9 +236,7 @@ static void terminal_move_cursor (microrl_t * this, int offset)
 static void terminal_reset_cursor (microrl_t * this)
 {
 	char str[16];
-	snprintf (str, 16, "\033[%dD", _COMMAND_LINE_LEN + _PROMPT_LEN + 1);
-	this->print (str);
-	snprintf (str, 16, "\033[%dC", _PROMPT_LEN);
+	snprintf (str, 16, "\033[%dD\033[%dC", _COMMAND_LINE_LEN + _PROMPT_LEN + 1, _PROMPT_LEN);
 	this->print (str);
 }
 
@@ -250,8 +248,7 @@ static void terminal_print_line (microrl_t * this, int offset)
 	terminal_reset_cursor (this);
 	this->print ("\033[K");    // delete all from begin to end
 	char nch [] = {0,0};
-	int len = this->cmdlen;
-	for (int i = 0; i < len; i++) {
+	for (int i = 0; i < this->cmdlen; i++) {
 		nch [0] = this->cmdline [i];
 		if (nch[0] == '\0')
 			nch[0] = ' ';
