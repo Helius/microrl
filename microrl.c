@@ -421,7 +421,7 @@ static void microrl_get_complite (microrl_t * this)
 {
 	char ** compl_token; 
 	int status = split (this);
-	if ((status>0) && (this->get_completion != NULL)) {
+	if (this->get_completion != NULL) {
 		if (this->cmdline[this->cursor-1] == '\0')
 			this->tkn_arr[status++] = "";
 		compl_token = this->get_completion (status, this->tkn_arr);
