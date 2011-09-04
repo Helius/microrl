@@ -15,6 +15,8 @@ BUGS and TODO:
 char * prompt_default = _PROMPT_DEFAUTL;
 
 #ifdef _USE_HISTORY
+
+#ifdef _HISTORY_DEBUG
 static void print_hist (ring_history_t * this)
 {
 	printf ("\n");
@@ -40,7 +42,7 @@ static void print_hist (ring_history_t * this)
 	}
 	printf ("\n");
 }
-
+#endif
 //*****************************************************************************
 static void hist_erase_older (ring_history_t * this)
 {
@@ -93,7 +95,9 @@ static void hist_save_line (ring_history_t * this, char * line, int len)
 	this->ring_buf [this->end] = 0;
 	this->cur = 0;
 //	DBG ("\nbegin %d, end %d\n", this->begin,  this->end);
-//	print_hist (this);
+#ifdef _HISTORY_DEBUG
+	print_hist (this);
+#endif
 }
 
 //*****************************************************************************
@@ -264,7 +268,7 @@ static void terminal_print_line (microrl_t * this, int offset)
 void microrl_init (microrl_t * this, void (*print) (char *)) 
 {
 	memset(this->cmdline, 0, _COMMAND_LINE_LEN);
-	this->cmdline[1] = '\n';
+//	this->cmdline[1] = '\n';
 #ifdef _USE_HISTORY
 	memset(this->ring_hist.ring_buf, 0, _RING_HISTORY_LEN);
 	this->ring_hist.begin = 0;
@@ -277,7 +281,7 @@ void microrl_init (microrl_t * this, void (*print) (char *))
 	this->get_completion = NULL;
 	this->prompt_str = prompt_default;
 	this->print = print;
-	print_prompt (this);
+//	print_prompt (this);
 }
 
 //*****************************************************************************
