@@ -17,6 +17,8 @@ char * prompt_default = _PROMPT_DEFAUTL;
 #ifdef _USE_HISTORY
 
 #ifdef _HISTORY_DEBUG
+//*****************************************************************************
+// print buffer content on screen
 static void print_hist (ring_history_t * this)
 {
 	printf ("\n");
@@ -43,7 +45,9 @@ static void print_hist (ring_history_t * this)
 	printf ("\n");
 }
 #endif
+
 //*****************************************************************************
+// remove older message from ring buffer
 static void hist_erase_older (ring_history_t * this)
 {
 	int new_pos = this->begin + this->ring_buf [this->begin] + 1;
@@ -54,6 +58,7 @@ static void hist_erase_older (ring_history_t * this)
 }
 
 //*****************************************************************************
+// check space for new line, remove older while not space
 static int hist_is_space_for_new (ring_history_t * this, int len)
 {
 	if (this->ring_buf [this->begin] == 0)
@@ -69,6 +74,7 @@ static int hist_is_space_for_new (ring_history_t * this, int len)
 }
 
 //*****************************************************************************
+// put line to ring buffer
 static void hist_save_line (ring_history_t * this, char * line, int len)
 {
 //	DBG ("\nsave to history %d byte\n", len);
@@ -115,7 +121,6 @@ static int hist_restore_line (ring_history_t * this, char * line, int dir)
 	}
 
 	if (dir == _HIST_UP) {
-//		DBG ("found %d in history\n", cnt);
 		if (cnt >= this->cur) {
 			int header = this->begin;
 			int j = 0;
@@ -126,8 +131,6 @@ static int hist_restore_line (ring_history_t * this, char * line, int dir)
 					header -= _RING_HISTORY_LEN;
 				j++;
 			}
-//			DBG ("use header %d, %d value %d\n", j, header, this->ring_buf[header]);
-//			DBG ("restore %d len is %d\n", j, this->ring_buf[header]);
 			if (this->ring_buf[header]) {
 					this->cur++;
 				// obtain saved line
@@ -135,7 +138,6 @@ static int hist_restore_line (ring_history_t * this, char * line, int dir)
 					memcpy (line, this->ring_buf + header + 1, this->ring_buf[header]);
 				} else {
 					int part0 = _RING_HISTORY_LEN - header - 1;
-	//				DBG ("first part is %d\n", part0);
 					memcpy (line, this->ring_buf + header + 1, part0);
 					memcpy (line + part0, this->ring_buf, this->ring_buf[header] - part0);
 				}
@@ -152,22 +154,17 @@ static int hist_restore_line (ring_history_t * this, char * line, int dir)
 				header += this->ring_buf [header] + 1;
 				if (header >= _RING_HISTORY_LEN)
 					header -= _RING_HISTORY_LEN;
-//				DBG ("header %d\n", header);
 				j++;
 			}
-//			DBG ("restore %d len is %d\n", j, this->ring_buf[header]);
 			if (this->ring_buf [header] + header < _RING_HISTORY_LEN) {
 				memcpy (line, this->ring_buf + header + 1, this->ring_buf[header]);
 			} else {
 				int part0 = _RING_HISTORY_LEN - header - 1;
-//				DBG ("first part is %d\n", part0);
 				memcpy (line, this->ring_buf + header + 1, part0);
 				memcpy (line + part0, this->ring_buf, this->ring_buf[header] - part0);
 			}
-//			memcpy (line, this->ring_buf + header + 1, this->ring_buf[header]);
 			return this->ring_buf[header];
 		}
-
 	}
 	return 0;
 }
