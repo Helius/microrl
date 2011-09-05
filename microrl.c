@@ -77,9 +77,7 @@ static int hist_is_space_for_new (ring_history_t * this, int len)
 // put line to ring buffer
 static void hist_save_line (ring_history_t * this, char * line, int len)
 {
-//	DBG ("\nsave to history %d byte\n", len);
 	while (!hist_is_space_for_new (this, len)) {
-//		DBG ("hist no space for new\n");
 		hist_erase_older (this);
 	}
 	// if it's first line
@@ -100,7 +98,6 @@ static void hist_save_line (ring_history_t * this, char * line, int len)
 		this->end -= _RING_HISTORY_LEN;
 	this->ring_buf [this->end] = 0;
 	this->cur = 0;
-//	DBG ("\nbegin %d, end %d\n", this->begin,  this->end);
 #ifdef _HISTORY_DEBUG
 	print_hist (this);
 #endif
@@ -237,29 +234,27 @@ static void terminal_move_cursor (microrl_t * this, int offset)
 static void terminal_reset_cursor (microrl_t * this)
 {
 	char str[16];
-	snprintf (str, 16, "\033[%dD\033[%dC", _COMMAND_LINE_LEN + _PROMPT_LEN + 1, _PROMPT_LEN);
+	snprintf (str, 16, "\033[%dD\033[%dC", _COMMAND_LINE_LEN + _PROMPT_LEN + 2,
+																					_PROMPT_LEN);
 	this->print (str);
 }
 
 //*****************************************************************************
 // print cmdline to screen, replace '\0' to wihitespace 
-static void terminal_print_line (microrl_t * this, int offset)
+static void terminal_print_line (microrl_t * this, int pos, int cursor)
 {
-	// reset terminal cursor at begin of line
-	terminal_reset_cursor (this);
-	this->print ("\033[K");    // delete all from begin to end
+	this->print ("\033[K");    // delete all from cursor to end
 
 	char nch [] = {0,0};
-	for (int i = 0; i < this->cmdlen; i++) {
+	for (int i = pos; i < this->cmdlen; i++) {
 		nch [0] = this->cmdline [i];
 		if (nch[0] == '\0')
 			nch[0] = ' ';
 		this->print (nch);
 	}
-	// reset terminal cursor at begin of line
+	
 	terminal_reset_cursor (this);
-	// set terminal cursor at microrl cursor
-	terminal_move_cursor (this, offset);
+	terminal_move_cursor (this, cursor);
 }
 
 //*****************************************************************************
@@ -307,7 +302,8 @@ static int escape_process (microrl_t * this, char ch)
 			int len = hist_restore_line (&this->ring_hist, this->cmdline, _HIST_UP);
 			if (len) {
 				this->cursor = this->cmdlen = len;
-				terminal_print_line (this, this->cursor);
+				terminal_reset_cursor (this);
+				terminal_print_line (this, 0, this->cursor);
 			}
 #endif
 			return 1;
@@ -316,7 +312,8 @@ static int escape_process (microrl_t * this, char ch)
 			int len = hist_restore_line (&this->ring_hist, this->cmdline, _HIST_DOWN);
 			if (len) {
 				this->cursor = this->cmdlen = len;
-				terminal_print_line (this, this->cursor);
+				terminal_reset_cursor (this);
+				terminal_print_line (this, 0, this->cursor);
 			}
 #endif
 			return 1;
@@ -389,7 +386,6 @@ static void microrl_backspace (microrl_t * this)
 		this->cursor--;
 		this->cmdline [this->cmdlen] = '\0';
 		this->cmdlen--;
-//		terminal_print_line (this, this->cursor);
 	}
 }
 
@@ -445,17 +441,15 @@ static void microrl_get_complite (microrl_t * this)
 		}
 		
 		if (len) {
-			int rm = strlen (this->tkn_arr[status-1]);
-			while (rm--)
-				microrl_backspace (this);
-			microrl_insert_text (this, compl_token[0], len);
+			microrl_insert_text (this, compl_token[0] + strlen(this->tkn_arr[status-1]), 
+																	len - strlen(this->tkn_arr[status-1]));
 			if (compl_token[1] == NULL) {
 				microrl_insert_text (this, " ", 1);
 			}
 			
 		}
-		terminal_print_line (this, 0);
-		terminal_move_cursor (this, this->cursor);
+		terminal_reset_cursor (this);
+		terminal_print_line (this, 0, this->cursor);
 	} 
 	
 }
@@ -514,7 +508,7 @@ void microrl_insert_char (microrl_t * this, int ch)
 					while (this->cursor > 0) {
 					microrl_backspace (this);
 				}
-				terminal_print_line (this, this->cursor);
+				terminal_print_line (this, 0, this->cursor);
 			break;
 			//-----------------------------------------------------
 			case KEY_VT:  // ^K
@@ -552,7 +546,8 @@ void microrl_insert_char (microrl_t * this, int ch)
 				int len = hist_restore_line (&this->ring_hist, this->cmdline, _HIST_UP);
 				if (len) {
 					this->cursor = this->cmdlen = len;
-					terminal_print_line (this, this->cursor);
+					terminal_reset_cursor (this);
+					terminal_print_line (this, 0, this->cursor);
 				}
 			}
 #endif
@@ -564,7 +559,8 @@ void microrl_insert_char (microrl_t * this, int ch)
 				int len = hist_restore_line (&this->ring_hist, this->cmdline, _HIST_DOWN);
 				if (len) {
 					this->cursor = this->cmdlen = len;
-					terminal_print_line (this, this->cursor);
+					terminal_reset_cursor (this);
+					terminal_print_line (this, 0, this->cursor);
 				}
 			}
 #endif
@@ -573,14 +569,14 @@ void microrl_insert_char (microrl_t * this, int ch)
 			case KEY_DEL: // Backspace
 			case KEY_BS: // ^U
 				microrl_backspace (this);
-				terminal_print_line (this, this->cursor);
+				terminal_print_line (this, this->cursor, this->cursor);
 			break;
 			//-----------------------------------------------------
 			default:
 			if ((ch == ' ') && (this->cmdlen == 0)) 
 				break;
 			if (microrl_insert_text (this, (char*)&ch, 1))
-				terminal_print_line (this, this->cursor);
+				terminal_print_line (this, this->cursor-1, this->cursor);
 			
 			break;
 		}
