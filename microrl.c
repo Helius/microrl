@@ -251,6 +251,7 @@ static void terminal_print_line (microrl_t * this, int offset)
 	// reset terminal cursor at begin of line
 	terminal_reset_cursor (this);
 	this->print ("\033[K");    // delete all from begin to end
+
 	char nch [] = {0,0};
 	for (int i = 0; i < this->cmdlen; i++) {
 		nch [0] = this->cmdline [i];
@@ -268,7 +269,6 @@ static void terminal_print_line (microrl_t * this, int offset)
 void microrl_init (microrl_t * this, void (*print) (char *)) 
 {
 	memset(this->cmdline, 0, _COMMAND_LINE_LEN);
-//	this->cmdline[1] = '\n';
 #ifdef _USE_HISTORY
 	memset(this->ring_hist.ring_buf, 0, _RING_HISTORY_LEN);
 	this->ring_hist.begin = 0;
@@ -392,7 +392,7 @@ static void microrl_backspace (microrl_t * this)
 		this->cursor--;
 		this->cmdline [this->cmdlen] = '\0';
 		this->cmdlen--;
-		terminal_print_line (this, this->cursor);
+//		terminal_print_line (this, this->cursor);
 	}
 }
 
@@ -459,9 +459,6 @@ static void microrl_get_complite (microrl_t * this)
 		}
 		terminal_print_line (this, 0);
 		terminal_move_cursor (this, this->cursor);
-//		for (int i = 0; i < this->cursor; i++) {
-//			this->print("\033[C");
-//		}
 	} 
 	
 }
@@ -520,6 +517,7 @@ void microrl_insert_char (microrl_t * this, int ch)
 					while (this->cursor > 0) {
 					microrl_backspace (this);
 				}
+				terminal_print_line (this, this->cursor);
 			break;
 			//-----------------------------------------------------
 			case KEY_VT:  // ^K
@@ -578,6 +576,7 @@ void microrl_insert_char (microrl_t * this, int ch)
 			case KEY_DEL: // Backspace
 			case KEY_BS: // ^U
 				microrl_backspace (this);
+				terminal_print_line (this, this->cursor);
 			break;
 			//-----------------------------------------------------
 			default:
