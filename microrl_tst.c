@@ -35,6 +35,14 @@ int execute (int argc, const char * const * tkn_arr)
 			print ("microrl library based shell v 1.0\n");
 			print_help ();
 			return 1;
+		} else if (strcmp (tkn_arr[i], "list") == 0) {
+			print ("available command:\n");
+			for (int i = 0; i < _NUM_OF_CMD; i++) {
+				print ("\t");
+				print (keyworld[i]);
+				print ("\n");
+			}
+			return 1;
 		} else {
 			print ("command: '");
 			print (tkn_arr[i]);
