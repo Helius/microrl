@@ -181,25 +181,25 @@ static int hist_restore_line (ring_history_t * this, char * line, int dir)
 
 
 //*****************************************************************************
-static int split (microrl_t * this)
+static int split (microrl_t * this, int limit)
 {
 	int i = 0;
 	int ind = 0;
 	while (1) {
 		// go to the first whitespace (zerro for us)
-		while ((this->cmdline [ind] == '\0') && (ind < this->cmdlen)) {
+		while ((this->cmdline [ind] == '\0') && (ind < limit)) {
 			ind++;
 		}
-		if (!(ind < this->cmdlen)) return i;
+		if (!(ind < limit)) return i;
 		this->tkn_arr[i++] = this->cmdline + ind;
 		if (i >= _COMMAND_TOKEN_NMB) {
 			return -1;
 		}
 		// go to the first NOT whitespace (not zerro for us)
-		while ((this->cmdline [ind] != '\0') && (ind < this->cmdlen)) {
+		while ((this->cmdline [ind] != '\0') && (ind < limit)) {
 			ind++;
 		}
-		if (!(ind < this->cmdlen)) return i;
+		if (!(ind < limit)) return i;
 	}
 	return i;
 }
@@ -421,44 +421,49 @@ static int common_len (char ** arr)
 static void microrl_get_complite (microrl_t * this) 
 {
 	char ** compl_token; 
-	int status = split (this);
-	if (this->get_completion != NULL) {
-		if (this->cmdline[this->cursor-1] == '\0')
-			this->tkn_arr[status++] = "";
-		compl_token = this->get_completion (status, this->tkn_arr);
-		if (compl_token[0] != NULL) {
-			int i = 0;
-			int len;
+	
+	if (this->get_completion == NULL) // callback was not set
+		return;
+	
+	int status = split (this, this->cursor);
+	if (this->cmdline[this->cursor-1] == '\0')
+		this->tkn_arr[status++] = "";
+	compl_token = this->get_completion (status, this->tkn_arr);
+	if (compl_token[0] != NULL) {
+		int i = 0;
+		int len;
 
+		if (compl_token[1] == NULL) {
+			len = strlen (compl_token[0]);
+		} else {
+			len = common_len (compl_token);
+			terminal_newline (this);
+			while (compl_token [i] != NULL) {
+				this->print (compl_token[i]);
+				this->print (" ");
+				i++;
+			}
+			terminal_newline (this);
+			print_prompt (this);
+		}
+		
+		if (len) {
+			int rm = strlen (this->tkn_arr[status-1]);
+			while (rm--)
+				microrl_backspace (this);
+			microrl_insert_text (this, compl_token[0], len);
 			if (compl_token[1] == NULL) {
-				len = strlen (compl_token[0]);
-			} else {
-				len = common_len (compl_token);
-				terminal_newline (this);
-				while (compl_token [i] != NULL) {
-					this->print (compl_token[i]);
-					this->print (" ");
-					i++;
-				}
-				terminal_newline (this);
-				print_prompt (this);
+				microrl_insert_text (this, " ", 1);
 			}
 			
-			if (len) {
-				int rm = strlen (this->tkn_arr[status-1]);
-				while (rm--)
-					microrl_backspace (this);
-				microrl_insert_text (this, compl_token[0], len);
-				if (compl_token[1] == NULL) {
-					microrl_insert_text (this, " ", 1);
-				}
-				
-			}
-			terminal_print_line (this, 0);
-			for (int i = 0; i < this->cursor; i++)
-				this->print("\033[C");
-		} 
-	}
+		}
+		terminal_print_line (this, 0);
+		terminal_move_cursor (this, this->cursor);
+//		for (int i = 0; i < this->cursor; i++) {
+//			this->print("\033[C");
+//		}
+	} 
+	
 }
 #endif
 
@@ -484,7 +489,7 @@ void microrl_insert_char (microrl_t * this, int ch)
 				if (this->cmdlen > 0)
 					hist_save_line (&this->ring_hist, this->cmdline, this->cmdlen);
 #endif
-				status = split (this);
+				status = split (this, this->cmdlen);
 				if (status == -1)
 					this->print ("ERROR: Max token amount exseed\n");
 				if ((status > 0) && (this->execute != NULL)) 

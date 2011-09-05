@@ -50,7 +50,10 @@ int execute (int argc, const char * const * tkn_arr)
 char ** complet (int argc, const char * const * argv)
 {
 	int j = 0;
-	
+
+//	for (int i = 0; i < argc; i++) {
+//		DBG ("[%s]\n", argv[i]);
+//	}
 	compl_world [0] = NULL;
 
 	// if there is tocken in cmdline
