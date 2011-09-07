@@ -225,7 +225,7 @@ static void terminal_move_cursor (microrl_t * this, int offset)
 	if (offset > 0) {
 		snprintf (str, 16, "\033[%dC", offset);
 	} else if (offset < 0) {
-		snprintf (str, 16, "\033[%dD", abs(offset));
+		snprintf (str, 16, "\033[%dD", -(offset));
 	}
 	this->print (str);
 }
