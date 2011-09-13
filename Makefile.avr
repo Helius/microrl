@@ -1,0 +1,24 @@
+#DEBUG     = -g
+
+CC        = avr-gcc
+CCFLAGS   = -mmcu=atmega8 -Wall $(DEBUG) -std=gnu99 -Os -ffunction-sections
+LDFLAGS   = -Wl,--gc-sections
+TARGET    = microrl_test.hex
+
+all: microrl_test
+
+
+microrl_test: microrl_tst.o microrl.o avr_misc.o
+	$(CC) $^ -o $@ $(LDFLAGS)
+	avr-objcopy -j .text -O ihex microrl_test $(TARGET)
+	avr-size $(TARGET)
+
+
+%.o: %.c
+	$(CC) -c $< $(CCFLAGS)
+
+clean:
+	rm -f *.o $(TARGET)
+
+load:
+	avreal +ATmega8 -aft2232 -evw -c $(TARGET)
