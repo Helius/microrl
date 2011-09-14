@@ -72,7 +72,7 @@ typedef struct {
 	int cursor;                        // input cursor
 	char const * tkn_arr [_COMMAND_TOKEN_NMB];                       // array of tocken for call 'execute' callback
 	int (*execute) (int argc, const char * const * argv );           // ptr to 'execute' callback
-	char * (*get_completion) (int argc, const char * const * argv ); // ptr to 'completion' callback
+	char ** (*get_completion) (int argc, const char * const * argv ); // ptr to 'completion' callback
 	void (*print) (char *);                                          // ptr to 'print' callback
 } microrl_t;
 
@@ -89,7 +89,7 @@ void microrl_set_echo (int);
 //   must return NULL-terminated string, contain complite variant splitted by 'Whitespace'
 //   If complite token found, it's must contain only one token to be complitted
 //   Empty string if complite not found, and multiple string if there are some token
-void microrl_set_complite_callback (microrl_t * this, char * (*get_completion)(int, const char* const*));
+void microrl_set_complite_callback (microrl_t * this, char ** (*get_completion)(int, const char* const*));
 
 // pointer to callback func, that called when user press 'Enter'
 // execute func param: argc - argument count, argv - pointer array to token string

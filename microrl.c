@@ -278,7 +278,7 @@ void microrl_init (microrl_t * this, void (*print) (char *))
 }
 
 //*****************************************************************************
-void microrl_set_complite_callback (microrl_t * this, char * (*get_completion)(int, const char* const*))
+void microrl_set_complite_callback (microrl_t * this, char ** (*get_completion)(int, const char* const*))
 {
 	this->get_completion = get_completion;
 }
@@ -371,6 +371,7 @@ static int microrl_insert_text (microrl_t * this, char * text, int len)
 		}
 		this->cursor += len;
 		this->cmdlen += len;
+		this->cmdline [this->cmdlen] = '\0';
 		return true;
 	}
 	return false;
