@@ -175,6 +175,7 @@ static int hist_restore_line (ring_history_t * this, char * line, int dir)
 
 
 //*****************************************************************************
+// split cmdline to tkn array and return nmb of token
 static int split (microrl_t * this, int limit)
 {
 	int i = 0;
@@ -290,6 +291,7 @@ void microrl_set_execute_callback (microrl_t * this, int (*execute)(int, const c
 
 #ifdef _USE_ESC_SEQ
 //*****************************************************************************
+// handling escape sequences
 static int escape_process (microrl_t * this, char ch)
 {
 	static int seq = 0;
@@ -443,15 +445,12 @@ static void microrl_get_complite (microrl_t * this)
 		if (len) {
 			microrl_insert_text (this, compl_token[0] + strlen(this->tkn_arr[status-1]), 
 																	len - strlen(this->tkn_arr[status-1]));
-			if (compl_token[1] == NULL) {
+			if (compl_token[1] == NULL) 
 				microrl_insert_text (this, " ", 1);
-			}
-			
 		}
 		terminal_reset_cursor (this);
 		terminal_print_line (this, 0, this->cursor);
 	} 
-	
 }
 #endif
 
