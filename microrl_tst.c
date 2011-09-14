@@ -1,10 +1,7 @@
 #include <stdio.h>
 #include <string.h>
-#include <sys/ioctl.h>
-#include <termios.h>
-#include <fcntl.h>
-#include <unistd.h> 
 #include "microrl.h"
+#include "microrl_misc.h"
 
 #define DBG(...) printf("\033[33m");printf(__VA_ARGS__);printf("\033[0m");
 
@@ -35,12 +32,6 @@ char ** compl_world [_NUM_OF_CMD + 1];
 char name [_NAME_LEN];
 int val;
 
-//*****************************************************************************
-// print callback for microrl library
-void print (char * str)
-{
-	fprintf (stdout, "%s", str);
-}
 
 //*****************************************************************************
 void print_help ()
@@ -108,7 +99,7 @@ int execute (int argc, const char * const * argv)
 	}
 	return 0;
 }
-
+#ifdef _USE_COMPLETE
 //*****************************************************************************
 // completion callback for microrl library
 char ** complet (int argc, const char * const * argv)
@@ -147,21 +138,7 @@ char ** complet (int argc, const char * const * argv)
 	// return set of variants
 	return compl_world;
 }
-
-//*****************************************************************************
-// get char user pressed, no waiting Enter input
-char get_char (void)
-{
-	struct termios oldt, newt;
-	int ch;
-	tcgetattr( STDIN_FILENO, &oldt );
-	newt = oldt;
-	newt.c_lflag &= ~( ICANON | ECHO );
-	tcsetattr( STDIN_FILENO, TCSANOW, &newt );
-	ch = getchar();
-	tcsetattr( STDIN_FILENO, TCSANOW, &oldt );
-	return ch;
-}
+#endif
 
 //*****************************************************************************
 int main (int argc, char ** argv)
@@ -174,7 +151,9 @@ int main (int argc, char ** argv)
 	// set callback for execute
 	microrl_set_execute_callback (prl, execute);
 	// set callback for completion
+#ifdef _USE_COMPLETE
 	microrl_set_complite_callback (prl, complet);
+#endif
 	
 	while (1) {
 		// put received char from stdin to microrl lib

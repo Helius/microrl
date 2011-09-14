@@ -1,7 +1,7 @@
 /*
 Author: Samoylov Eugene aka Helius (ghelius@gmail.com)
 BUGS and TODO:
-*)
+add echo_off feature
 */
 
 #include <stdio.h>
@@ -479,7 +479,8 @@ void microrl_insert_char (microrl_t * this, int ch)
 #endif
 				status = split (this, this->cmdlen);
 				if (status == -1)
-					this->print ("ERROR: Max token amount exseed\n");
+//					this->print ("ERROR: Max token amount exseed\n");
+					this->print ("ERROR:tokens too much\n\r");
 				if ((status > 0) && (this->execute != NULL)) 
 					this->execute (status, this->tkn_arr);
 				print_prompt (this);

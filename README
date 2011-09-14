@@ -36,6 +36,7 @@ For library work, you can just put chars from input stream by calling microrl_in
 3. INSTALL
 
 Requests: c99 (gnu99) compiler with libc. In you code you have to provide some callbacks for library work.
+add key -std=gnu99 for gcc
 
 You need to do few simple steps:
 

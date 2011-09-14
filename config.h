@@ -50,10 +50,8 @@ History ring buffer length, define static buffer size.
 For saving memory, each entered cmdline store to history in ring buffer,
 so we can not say, how many line we can store, it depends from cmdline len,
 but memory using more effective. We not prefer dinamic memory allocation for
-small and embedded devices.*/
-#ifdef _USE_HISTORY
-#define _RING_HISTORY_LEN 36
-#endif
+small and embedded devices. Overhead is 2 char on each saved line*/
+#define _RING_HISTORY_LEN 128
 
 /*
 Enable Handling terminal ESC sequence. If disabling, then cursor arrow, HOME, END will not work,

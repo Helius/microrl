@@ -79,6 +79,10 @@ typedef struct {
 // init internal data, calls once at start up
 void microrl_init (microrl_t * this, void (*print)(char*));
 
+// set echo mode (true/false), using for disabling echo for password input
+// echo mode will enabled after user press Enter.
+void microrl_set_echo (int);
+
 // set pointer to callback complition func, that called when user press 'Tab'
 // callback func description:
 //   param: argc - argument count, argv - pointer array to token string
