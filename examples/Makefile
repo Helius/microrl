@@ -10,11 +10,11 @@ TARGET=microrl_test
 all: microrl_test
 
 
-microrl_test: example.o microrl/microrl.o unix_misc/unix_misc.o
+microrl_test: example.o ../src/microrl.o unix_misc/unix_misc.o
 	$(CC) $^ -o $@ $(LDFLAGS)
 
 %.o: %.c
 	$(CC) -c $< $(CCFLAGS) -o $(*).o
 
 clean:
-	rm -f unix_misc/*.o microrl/*.o *.o $(TARGET)*
+	rm -f unix_misc/*.o ../src/*.o *.o $(TARGET)*

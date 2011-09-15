@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-#include "microrl/microrl.h"
+#include "../src/microrl.h"
 #include "example_misc.h"
 
 #define DBG(...) printf("\033[33m");printf(__VA_ARGS__);printf("\033[0m");
