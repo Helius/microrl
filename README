@@ -32,11 +32,24 @@ For library work, you can just put chars from input stream by calling microrl_in
 	** completion
 	 - via completion callback
 
+3. SRC STRUCTURE
 
-3. INSTALL
+microrl/       - library source
+  microrl.c    - microrl routines
+	microrl.h    - lib interface and data type
+	config.h     - customisation config-file
+avr_misc/      - avr specific routines for avr example
+unix_misc/     - unix specific routines for desktop example
+microrl_misc.h - interface to platform specific routines for example build (avr, unix)
+example.c      - common part of example, for build  demonstrating example for various platform
+Makefile       - unix build (gcc)
+Makefiel.avr   - avr build (avr-gcc)
+
+
+4. INSTALL
 
 Requests: c99 (gnu99) compiler with libc. In you code you have to provide some callbacks for library work.
-add key -std=gnu99 for gcc
+NOTE: add key -std=gnu99 for gcc
 
 You need to do few simple steps:
 
