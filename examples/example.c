@@ -25,7 +25,7 @@ char * keyworld [] = {_CMD_HELP, _CMD_CLEAR, _CMD_LIST, _CMD_NAME, _CMD_VER, _CM
 char * ver_keyworld [] = {_SCMD_MRL, _SCMD_DEMO};
 
 // array for comletion
-char ** compl_world [_NUM_OF_CMD + 1];
+char * compl_world [_NUM_OF_CMD + 1];
 
 // 'name' var for store some string
 #define _NAME_LEN 8
@@ -74,7 +74,7 @@ int execute (int argc, const char * const * argv)
 				} else if (strcmp (argv[i], _SCMD_MRL) == 0) {
 					print ("microrl v 1.2\n\r");
 				} else {
-					print (argv[i]);
+					print ((char*)argv[i]);
 					print (" wrong argument, see help\n\r");
 				}
 			} else {
@@ -92,7 +92,7 @@ int execute (int argc, const char * const * argv)
 			}
 		} else {
 			print ("command: '");
-			print (argv[i]);
+			print ((char*)argv[i]);
 			print ("' Not found.\n\r");
 		}
 		i++;
@@ -111,7 +111,7 @@ char ** complet (int argc, const char * const * argv)
 	// if there is tocken in cmdline
 	if (argc == 1) {
 		// get last entered tocken
-		char * bit = argv [argc-1];
+		char * bit = (char*)argv [argc-1];
 		// iterate through our available token and match it
 		for (int i = 0; i < _NUM_OF_CMD; i++) {
 			// if tocken is matched (text is part of our token starting from 0 char)
