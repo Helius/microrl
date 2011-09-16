@@ -1,12 +1,8 @@
-microrl - micro read line library for small and embedded devices with some basic VT100 support.
+microrl - micro read line library for small and embedded devices with basic VT100 support.
 
 1. DESCRIPTION
 
-microrl library designed for use in small and embedded devices where we want to have command line interface. Main goal is make compact, small memory consuming but powerfull interfaces, with support navigation through command line with cursor, HOME, END keys, hot key like Ctrl+U and other, history and completion feature.
-
-Library needs 2 obliging callbacks, first called for print to output stream. Second callback called then user press Enter, it give command line tokens for you handling. There is third not obliging callbacks, library call him then user press TAB and waiting for command completion, it also give you command line token, but you need return completion set.
-
-For library work, you can just put chars from input stream by calling microrl_insert_char.
+Microrl library designed for implement command line interface in small and embedded devices. Main goal is write compact, small memory consuming but powerful interfaces, with support navigation through command line with cursor, HOME, END keys, hot key like Ctrl+U and other, history and completion feature.
 
 
 2. FEATURE
@@ -32,26 +28,28 @@ For library work, you can just put chars from input stream by calling microrl_in
 	** completion
 	 - via completion callback
 
+
 3. SRC STRUCTURE
 
-microrl/       - library source
-  microrl.c    - microrl routines
-  microrl.h    - lib interface and data type
-  config.h     - customisation config-file
-avr_misc/      - avr specific routines for avr example
-unix_misc/     - unix specific routines for desktop example
-example.c      - common part of example, for build  demonstrating example for various platform
-example_misc.h - interface to platform specific routines for example build (avr, unix)
-Makefile       - unix example build (gcc)
-Makefiel.avr   - avr example build (avr-gcc)
+src/             - library source
+  microrl.c      - microrl routines
+  microrl.h      - lib interface and data type
+  config.h       - customisation config-file
+examples/        - library usage examples
+  avr_misc/      - avr specific routines for avr example
+  unix_misc/     - unix specific routines for desktop example
+  example.c      - common part of example, for build  demonstrating example for various platform
+  example_misc.h - interface to platform specific routines for example build (avr, unix)
+  Makefile       - unix example build (gcc)
+  Makefiel.avr   - avr example build (avr-gcc)
 
 
 4. INSTALL
 
 Requests: c99 (gnu99) compiler with libc. In you code you have to provide some callbacks for library work.
-NOTE: add key -std=gnu99 for gcc
+NOTE: need add -std=gnu99 arg for gcc
 
-You need to do few simple steps:
+For embed lib to you project, you need to do few simple steps:
 
 a) Include microrl.h file to you project.
 
@@ -63,13 +61,13 @@ For example on linux PC print callback may be:
 		fprintf (stdout, "%s", str);
 	}
 
-c) Call 'microrl_set_execute_callback' with pointer to you function, that will call if user press enter in terminal. Execute callback give a 'argc', 'argv' parametrs, like 'main' func in application. All token in 'argv' is null terminated. So you can simply walk through argv and handle commands.
+c) Call 'microrl_set_execute_callback' with pointer to you routine, what will be called if user press enter in terminal. Execute callback give a 'argc', 'argv' parametrs, like 'main' func in application. All token in 'argv' is null terminated. So you can simply walk through argv and handle commands.
 
 d) If you want completion support if user press TAB key, call 'microrl_set_completion_callback' and set you callback. It also give 'argc' and 'argv' arguments, so iterate through it and return set of complete variants. 
 
 e) Look at 'config.h' file, for tune library for you requiring. 
 
-f) Now you just call 'microrl_insert_char' on each received from input stream (usart, network, etc) chars.
+f) Now you just call 'microrl_insert_char' on each char received from input stream (usart, network, etc).
 
 Example of code:
 
@@ -94,7 +92,7 @@ Example of code:
 		return 0;
 	}
 
-See microrl_tst.c for example library usage.
+See examples library usage.
 
 
 
