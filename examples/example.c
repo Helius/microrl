@@ -154,6 +154,7 @@ int main (int argc, char ** argv)
 #ifdef _USE_COMPLETE
 	microrl_set_complite_callback (prl, complet);
 #endif
+	init ();
 	
 	while (1) {
 		// put received char from stdin to microrl lib
