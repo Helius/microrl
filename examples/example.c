@@ -141,8 +141,10 @@ char ** complet (int argc, const char * const * argv)
 #endif
 
 //*****************************************************************************
-int main (int argc, char ** argv)
+int main (void/*int argc, char ** argv*/)
 {
+	init ();
+	
 	// create microrl object and pointer on it
 	microrl_t rl;
 	microrl_t * prl = &rl;
@@ -154,7 +156,6 @@ int main (int argc, char ** argv)
 #ifdef _USE_COMPLETE
 	microrl_set_complite_callback (prl, complet);
 #endif
-	init ();
 	
 	while (1) {
 		// put received char from stdin to microrl lib

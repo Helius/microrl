@@ -21,4 +21,4 @@ clean:
 	rm -f avr_misc/*.o ../src/microrl.o *.o $(TARGET).*
 
 load:
-	avreal +ATmega8 -aft2232 -evw -c $(TARGET)
+	avreal +ATmega8 -aft2232 -evw -c $(TARGET).hex

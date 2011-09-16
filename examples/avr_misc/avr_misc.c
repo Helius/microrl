@@ -16,9 +16,10 @@ void init (void)
 //*****************************************************************************
 void print (char * str)
 {
-	for (int i = 0; i < strlen(str); i++) {
+	int i = 0;
+	while (str [i] != 0) {
 		while (!( UCSRA & (1<<UDRE)));
-		UDR = str[i];
+		UDR = str[i++];
 	}
 }
 
