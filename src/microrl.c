@@ -10,7 +10,7 @@ add echo_off feature
 #include <stdlib.h>
 #include "microrl.h"
 
-#define DBG(...) fprintf(stderr, "\033[33m");fprintf(stderr,__VA_ARGS__);fprintf(stderr,"\033[0m");
+//#define DBG(...) fprintf(stderr, "\033[33m");fprintf(stderr,__VA_ARGS__);fprintf(stderr,"\033[0m");
 
 char * prompt_default = _PROMPT_DEFAUTL;
 
@@ -358,7 +358,6 @@ static int escape_process (microrl_t * this, char ch)
 // insert len char of text at cursor position
 static int microrl_insert_text (microrl_t * this, char * text, int len)
 {
-//	DBG ("cmdlen %d\n", this->cmdlen);
 	if (this->cmdlen + len < _COMMAND_LINE_LEN) {
 		memmove (this->cmdline + this->cursor + len,
 						 this->cmdline + this->cursor,
