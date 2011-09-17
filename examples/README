@@ -1,7 +1,19 @@
-Microrl library usage demo.
+Microrl library demo.
 
 Fof AVR demo build type
 $make -f Makefile.avr
+Connect USART to PC (usb-convertor work!) COM-port and open terminal like minicom with it COM-port.
+# -c on: turn on color in terminal
+# -D /dev/ttyUSB0: your COM-port (virtual if usb-converter used)
+# -b 11520: USART baud rate
+$minicom -c on -D /dev/ttyUSB0 -b 115200
+
+oscillator   baud-rate
+ 16MHz        115200
+  8MHz        57600
+  1MHz        14400
+
+
 
 For Unix demo build, just type
 $make
