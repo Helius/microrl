@@ -1,0 +1,8 @@
+Microrl library usage demo.
+
+Fof AVR demo build type
+$make -f Makefile.avr
+
+For Unix demo build, just type
+$make
+
