@@ -61,9 +61,8 @@ char get_char (void)
 void print_help ()
 {
 	print ("Use TAB key for completion\n\rCommand:\n\r");
-	print ("\tversion -  print version of microrl and version of this demo\n\r");
-	print ("\tclear -    clear screen\n\r");
-	print ("\tset_port port pin - set 1 port[pin] value, support only 'port_b' and 'port_d'\n\r");
+	print ("\tclear     - clear screen\n\r");
+	print ("\tset_port port pin   - set 1 port[pin] value, support only 'port_b' and 'port_d'\n\r");
 	print ("\tclear_port port pin - set 0 port[pin] value, support only 'port_b' and 'port_d'\n\r");
 }
 
