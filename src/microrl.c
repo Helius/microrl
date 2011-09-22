@@ -1,8 +1,8 @@
 /*
 Author: Samoylov Eugene aka Helius (ghelius@gmail.com)
 BUGS and TODO:
--- if history buffer smaller than saved command: segfault!
 -- add echo_off feature
+-- rewrite history for use more than 256 byte buffer
 */
 
 #include <stdio.h>
@@ -291,6 +291,7 @@ void microrl_set_execute_callback (microrl_t * this, int (*execute)(int, const c
 }
 
 #ifdef _USE_ESC_SEQ
+
 static void hist_search (microrl_t * this, int dir)
 {
 int len = hist_restore_line (&this->ring_hist, this->cmdline, dir);
@@ -543,27 +544,13 @@ void microrl_insert_char (microrl_t * this, int ch)
 			//-----------------------------------------------------
 			case KEY_DLE: //^P
 #ifdef _USE_HISTORY
-			{
-				int len = hist_restore_line (&this->ring_hist, this->cmdline, _HIST_UP);
-				if (len) {
-					this->cursor = this->cmdlen = len;
-					terminal_reset_cursor (this);
-					terminal_print_line (this, 0, this->cursor);
-				}
-			}
+			hist_search (this, _HIST_UP);
 #endif
 			break;
 			//-----------------------------------------------------
 			case KEY_SO: //^N
 #ifdef _USE_HISTORY
-			{
-				int len = hist_restore_line (&this->ring_hist, this->cmdline, _HIST_DOWN);
-				if (len) {
-					this->cursor = this->cmdlen = len;
-					terminal_reset_cursor (this);
-					terminal_print_line (this, 0, this->cursor);
-				}
-			}
+			hist_search (this, _HIST_DOWN);
 #endif
 			break;
 			//-----------------------------------------------------

@@ -13,7 +13,7 @@ Command line length, define cmdline buffer size. Set max number of chars + 1,
 because last byte of buffer need to contain '\0' - NULL terminator, and 
 not use for storing inputed char.
 If user input chars more then it parametrs-1, chars not added to command line.*/
-#define _COMMAND_LINE_LEN (1+32)									// for 32 chars
+#define _COMMAND_LINE_LEN (1+200)									// for 32 chars
 
 /*
 Command token number, define max token it command line, if number of token 
@@ -52,7 +52,7 @@ For saving memory, each entered cmdline store to history in ring buffer,
 so we can not say, how many line we can store, it depends from cmdline len,
 but memory using more effective. We not prefer dinamic memory allocation for
 small and embedded devices. Overhead is 2 char on each saved line*/
-#define _RING_HISTORY_LEN 100
+#define _RING_HISTORY_LEN 10
 #if _RING_HISTORY_LEN > 256
 #error "For this implementation of history (ring buffer with 1 byte iterator) length of buffer not be more than 256"
 #endif

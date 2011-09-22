@@ -7,7 +7,6 @@
 microrl_t rl;
 microrl_t * prl = &rl;
 
-
 //*****************************************************************************
 int main (void/*int argc, char ** argv*/)
 {
