@@ -58,10 +58,10 @@ char get_char (void)
 }
 
 //*****************************************************************************
-void print_help ()
+void print_help (void)
 {
 	print ("Use TAB key for completion\n\rCommand:\n\r");
-	print ("\tclear     - clear screen\n\r");
+	print ("\tclear               - clear screen\n\r");
 	print ("\tset_port port pin   - set 1 port[pin] value, support only 'port_b' and 'port_d'\n\r");
 	print ("\tclear_port port pin - set 0 port[pin] value, support only 'port_b' and 'port_d'\n\r");
 }
@@ -153,13 +153,13 @@ char ** complet (int argc, const char * const * argv)
 
 	compl_world [0] = NULL;
 
-	// if there is tocken in cmdline
+	// if there is token in cmdline
 	if (argc == 1) {
-		// get last entered tocken
+		// get last entered token
 		char * bit = (char*)argv [argc-1];
 		// iterate through our available token and match it
 		for (int i = 0; i < _NUM_OF_CMD; i++) {
-			// if tocken is matched (text is part of our token starting from 0 char)
+			// if token is matched (text is part of our token starting from 0 char)
 			if (strstr(keyworld [i], bit) == keyworld [i]) {
 				// add it to completion set
 				compl_world [j++] = keyworld [i];

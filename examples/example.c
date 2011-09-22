@@ -3,6 +3,9 @@
 #include "../src/microrl.h"
 #include "example_misc.h"
 
+// create microrl object and pointer on it
+microrl_t rl;
+microrl_t * prl = &rl;
 
 
 //*****************************************************************************
@@ -10,9 +13,6 @@ int main (void/*int argc, char ** argv*/)
 {
 	init ();
 	
-	// create microrl object and pointer on it
-	microrl_t rl;
-	microrl_t * prl = &rl;
 	// call init with ptr to microrl instance and print callback
 	microrl_init (prl, print);
 	// set callback for execute

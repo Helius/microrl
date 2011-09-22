@@ -138,13 +138,13 @@ char ** complet (int argc, const char * const * argv)
 
 	compl_world [0] = NULL;
 
-	// if there is tocken in cmdline
+	// if there is token in cmdline
 	if (argc == 1) {
-		// get last entered tocken
+		// get last entered token
 		char * bit = (char*)argv [argc-1];
 		// iterate through our available token and match it
 		for (int i = 0; i < _NUM_OF_CMD; i++) {
-			// if tocken is matched (text is part of our token starting from 0 char)
+			// if token is matched (text is part of our token starting from 0 char)
 			if (strstr(keyworld [i], bit) == keyworld [i]) {
 				// add it to completion set
 				compl_world [j++] = keyworld [i];

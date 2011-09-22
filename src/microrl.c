@@ -1,7 +1,8 @@
 /*
 Author: Samoylov Eugene aka Helius (ghelius@gmail.com)
 BUGS and TODO:
-add echo_off feature
+-- if history buffer smaller than saved command: segfault!
+-- add echo_off feature
 */
 
 #include <stdio.h>
@@ -290,6 +291,16 @@ void microrl_set_execute_callback (microrl_t * this, int (*execute)(int, const c
 }
 
 #ifdef _USE_ESC_SEQ
+static void hist_search (microrl_t * this, int dir)
+{
+int len = hist_restore_line (&this->ring_hist, this->cmdline, dir);
+if (len) {
+	this->cursor = this->cmdlen = len;
+	terminal_reset_cursor (this);
+	terminal_print_line (this, 0, this->cursor);
+}
+}
+
 //*****************************************************************************
 // handling escape sequences
 static int escape_process (microrl_t * this, char ch)
@@ -301,22 +312,12 @@ static int escape_process (microrl_t * this, char ch)
 	} else if (seq == _ESC_BRACKET) {
 		if (ch == 'A') {
 #ifdef _USE_HISTORY
-			int len = hist_restore_line (&this->ring_hist, this->cmdline, _HIST_UP);
-			if (len) {
-				this->cursor = this->cmdlen = len;
-				terminal_reset_cursor (this);
-				terminal_print_line (this, 0, this->cursor);
-			}
+			hist_search (this, _HIST_UP);
 #endif
 			return 1;
 		} else if (ch == 'B') {
 #ifdef _USE_HISTORY
-			int len = hist_restore_line (&this->ring_hist, this->cmdline, _HIST_DOWN);
-			if (len) {
-				this->cursor = this->cmdlen = len;
-				terminal_reset_cursor (this);
-				terminal_print_line (this, 0, this->cursor);
-			}
+			hist_search (this, _HIST_DOWN);
 #endif
 			return 1;
 		} else if (ch == 'C') {

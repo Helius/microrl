@@ -70,7 +70,7 @@ typedef struct {
 	char cmdline [_COMMAND_LINE_LEN];  // cmdline buffer
 	int cmdlen;                        // last position in command line
 	int cursor;                        // input cursor
-	char const * tkn_arr [_COMMAND_TOKEN_NMB];                       // array of tocken for call 'execute' callback
+	char const * tkn_arr [_COMMAND_TOKEN_NMB];                       // array of token for call 'execute' callback
 	int (*execute) (int argc, const char * const * argv );           // ptr to 'execute' callback
 	char ** (*get_completion) (int argc, const char * const * argv ); // ptr to 'completion' callback
 	void (*print) (char *);                                          // ptr to 'print' callback

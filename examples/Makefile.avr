@@ -1,24 +1,34 @@
 CC        = avr-gcc
 MCU       = atmega8
-#DEBUG     = -g
-CCFLAGS   = -mmcu=$(MCU) -Wall $(DEBUG) -std=gnu99 -Os -ffunction-sections
-LDFLAGS   = -Wl,-Map,.map,--gc-sections -mmcu=$(MCU)
 TARGET    = microrl_test
+#DEBUG     = -g
+
+CCFLAGS = -mmcu=$(MCU)
+CCFLAGS = -Os -funsigned-char# -funsigned-bitfields -fpack-struct
+CCFLAGS += -std=gnu99
+CCFLAGS += -Wall -Wstrict-prototypes -Wa,-adhlns=$(<:.c=.lst) 
+CCFLAGS += -ffunction-sections
+
+LDFLAGS = -Wl,-Map=$(TARGET).map,--gc-section,--cref
+
+ALL_CFLAGS = -mmcu=$(MCU) #-I. $(CCFLAGS)
+
 
 all: $(TARGET).elf
 
-
 $(TARGET).elf: example.o ../src/microrl.o avr_misc/avr_misc.o
-	$(CC) $^ -o $@ $(LDFLAGS) #$(CCFLAGS)
+	$(CC) $^ -o $@ $(LDFLAGS) $(ALL_FLAGS)
 	avr-objcopy -j .text -j .data -O ihex $(TARGET).elf $(TARGET).hex
-	avr-size --format=avr --mcu=$(MCU) $(TARGET).elf
+	#avr-objcopy -j .text -j .data -O ihex $(TARGET).elf $(TARGET).hex
+	avr-size --mcu=$(MCU) $(TARGET).elf
 
 
 %.o: %.c
-	$(CC) -c $< $(CCFLAGS) -o $(*).o
+	$(CC) -c $(ALL_CFLAGS) $(CCFLAGS) $< -o $(*).o
 
 clean:
 	rm -f avr_misc/*.o ../src/microrl.o *.o $(TARGET).*
 
 load:
 	avreal +ATmega8 -aft2232 -evw -c $(TARGET).hex
+
