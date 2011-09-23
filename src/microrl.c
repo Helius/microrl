@@ -78,6 +78,8 @@ static int hist_is_space_for_new (ring_history_t * this, int len)
 // put line to ring buffer
 static void hist_save_line (ring_history_t * this, char * line, int len)
 {
+	if (len > _RING_HISTORY_LEN - 2)
+		return;
 	while (!hist_is_space_for_new (this, len)) {
 		hist_erase_older (this);
 	}
