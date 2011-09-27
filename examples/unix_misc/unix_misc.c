@@ -169,3 +169,9 @@ char ** complet (int argc, const char * const * argv)
 	return compl_world;
 }
 #endif
+
+//*****************************************************************************
+void sigint (void)
+{
+	print ("^C catched!\n\r");
+}

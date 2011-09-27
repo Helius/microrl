@@ -21,6 +21,7 @@ Microrl library designed for implement command line interface in small and embed
 	 - Ctrl+F (like cursor arrow right)
 	 - Ctrl+P (like cursor arrow up)
 	 - Ctrl+N (like cursor arrow down)
+	 - Ctrl+C (call 'sigint' callback, only for embedded system)
 
 	** history
 	 - Static ring buffer history for memory saving. Number of commands saved to history depends from commands length and buffer size (defined in config)
@@ -81,8 +82,10 @@ Example of code:
 		microrl_init (prl, print);
 		// set callback for execute
 		microrl_set_execute_callback (prl, execute);
-		// set callback for completion
+		// set callback for completion (optionally)
 		microrl_set_complite_callback (prl, complet);
+		// set callback for ctrl+c handling (optionally)
+		microrl_set_sigint_callback (prl, sigint);
 		
 		while (1) {
 			// put received char from stdin to microrl lib
