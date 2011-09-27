@@ -275,6 +275,9 @@ void microrl_init (microrl_t * this, void (*print) (char *))
 	this->cursor = 0;
 	this->execute = NULL;
 	this->get_completion = NULL;
+#ifdef _USE_CTLR_C
+	this->sigint = NULL;
+#endif
 	this->prompt_str = prompt_default;
 	this->print = print;
 //	print_prompt (this);
@@ -291,9 +294,15 @@ void microrl_set_execute_callback (microrl_t * this, int (*execute)(int, const c
 {
 	this->execute = execute;
 }
+#ifdef _USE_CTLR_C
+//*****************************************************************************
+void microrl_set_sigint_callback (microrl_t * this, void (*sigintf)(void))
+{
+	this->sigint = sigintf;
+}
+#endif
 
 #ifdef _USE_ESC_SEQ
-
 static void hist_search (microrl_t * this, int dir)
 {
 int len = hist_restore_line (&this->ring_hist, this->cmdline, dir);
@@ -561,6 +570,12 @@ void microrl_insert_char (microrl_t * this, int ch)
 				microrl_backspace (this);
 				terminal_print_line (this, this->cursor, this->cursor);
 			break;
+#ifdef _USE_CTLR_C
+			case KEY_ETX:
+			if (this->sigint != NULL)
+				this->sigint();
+			break;
+#endif
 			//-----------------------------------------------------
 			default:
 			if ((ch == ' ') && (this->cmdlen == 0)) 

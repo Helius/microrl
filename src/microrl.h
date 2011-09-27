@@ -74,6 +74,9 @@ typedef struct {
 	int (*execute) (int argc, const char * const * argv );           // ptr to 'execute' callback
 	char ** (*get_completion) (int argc, const char * const * argv ); // ptr to 'completion' callback
 	void (*print) (char *);                                          // ptr to 'print' callback
+#ifdef _USE_CTLR_C
+	void (*sigint) (void);
+#endif
 } microrl_t;
 
 // init internal data, calls once at start up

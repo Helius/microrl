@@ -21,4 +21,7 @@ int execute (int argc, const char * const * argv);
 // completion callback
 char ** complet (int argc, const char * const * argv);
 
+// ctrl+c callback
+void sigint (void);
+
 #endif

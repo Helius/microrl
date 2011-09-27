@@ -16,11 +16,13 @@ int main (void/*int argc, char ** argv*/)
 	microrl_init (prl, print);
 	// set callback for execute
 	microrl_set_execute_callback (prl, execute);
-	// set callback for completion
+
 #ifdef _USE_COMPLETE
+	// set callback for completion
 	microrl_set_complite_callback (prl, complet);
 #endif
-	
+	// set callback for Ctrl+C
+	microrl_set_sigint_callback (prl, sigint);
 	while (1) {
 		// put received char from stdin to microrl lib
 		microrl_insert_char (prl, get_char());
