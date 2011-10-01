@@ -2,7 +2,7 @@ microrl - micro read line library for small and embedded devices with basic VT10
 
 1. DESCRIPTION
 
-Microrl library designed for implement command line interface in small and embedded devices. Main goal is write compact, small memory consuming but powerful interfaces, with support navigation through command line with cursor, HOME, END keys, hot key like Ctrl+U and other, history and completion feature.
+Microrl library is designed to help implement command line interface in small and embedded devices. Main goal is to write compact, small memory consuming but powerful interfaces, with support navigation through command line with cursor, HOME, END keys, hot key like Ctrl+U and other, history and completion feature.
 
 
 2. FEATURE
@@ -42,12 +42,12 @@ examples/        - library usage examples
   example.c      - common part of example, for build  demonstrating example for various platform
   example_misc.h - interface to platform specific routines for example build (avr, unix)
   Makefile       - unix example build (gcc)
-  Makefiel.avr   - avr example build (avr-gcc)
+  Makefile.avr   - avr example build (avr-gcc)
 
 
 4. INSTALL
 
-Requests: c99 (gnu99) compiler with libc. In you code you have to provide some callbacks for library work.
+Requirements: C compiler with support for C99 standard (GNU GCC, Keil, IAR) with standard C library (libc, uClibc or other compatible). Also you have to implement several routines in your own code for library to work. 
 NOTE: need add -std=gnu99 arg for gcc
 
 For embed lib to you project, you need to do few simple steps:
