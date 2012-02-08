@@ -262,7 +262,7 @@ static void terminal_print_line (microrl_t * this, int pos, int cursor)
 }
 
 //*****************************************************************************
-void microrl_init (microrl_t * this, void (*print) (char *)) 
+void microrl_init (microrl_t * this, void (*print) (const char *)) 
 {
 	memset(this->cmdline, 0, _COMMAND_LINE_LEN);
 #ifdef _USE_HISTORY

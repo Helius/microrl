@@ -43,7 +43,7 @@
 #define KEY_DEL 127 /**< Delete (not a real control character...) */
 
 // direction of history navigation
-#define _HIST_UP 0
+#define _HIST_UP   0
 #define _HIST_DOWN 1
 // esc seq internal codes
 #define _ESC_BRACKET  1
@@ -70,17 +70,17 @@ typedef struct {
 	char cmdline [_COMMAND_LINE_LEN];  // cmdline buffer
 	int cmdlen;                        // last position in command line
 	int cursor;                        // input cursor
-	char const * tkn_arr [_COMMAND_TOKEN_NMB];                       // array of token for call 'execute' callback
-	int (*execute) (int argc, const char * const * argv );           // ptr to 'execute' callback
+	char const * tkn_arr [_COMMAND_TOKEN_NMB];                        // array of token for call 'execute' callback
+	int (*execute) (int argc, const char * const * argv );            // ptr to 'execute' callback
 	char ** (*get_completion) (int argc, const char * const * argv ); // ptr to 'completion' callback
-	void (*print) (char *);                                          // ptr to 'print' callback
+	void (*print) (const char *);                                     // ptr to 'print' callback
 #ifdef _USE_CTLR_C
 	void (*sigint) (void);
 #endif
 } microrl_t;
 
 // init internal data, calls once at start up
-void microrl_init (microrl_t * this, void (*print)(char*));
+void microrl_init (microrl_t * this, void (*print)(const char*));
 
 // set echo mode (true/false), using for disabling echo for password input
 // echo mode will enabled after user press Enter.
@@ -97,6 +97,11 @@ void microrl_set_complite_callback (microrl_t * this, char ** (*get_completion)(
 // pointer to callback func, that called when user press 'Enter'
 // execute func param: argc - argument count, argv - pointer array to token string
 void microrl_set_execute_callback (microrl_t * this, int (*execute)(int, const char* const*));
+
+// set callback for Ctrl+C terminal signal
+#ifdef _USE_CTLR_C
+void microrl_set_sigint_callback (microrl_t * this, void (*sigintf)(void));
+#endif
 
 // insert char to cmdline (for example call in usart RX interrupt)
 void microrl_insert_char (microrl_t * this, int ch);

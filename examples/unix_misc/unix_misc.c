@@ -12,7 +12,7 @@ void init (void){};
 
 //*****************************************************************************
 // print callback for microrl library
-void print (char * str)
+void print (const char * str)
 {
 	fprintf (stdout, "%s", str);
 }

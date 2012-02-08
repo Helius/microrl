@@ -41,7 +41,7 @@ void init (void)
 }
 
 //*****************************************************************************
-void print (char * str)
+void print (const char * str)
 {
 	int i = 0;
 	while (str [i] != 0) {
