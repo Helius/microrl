@@ -63,6 +63,13 @@ use Ctrl+A(B,F,P,N,A,E,H,K,U,C) see README, but decrease code memory.*/
 Enable 'interrupt signal' callback, if user press Ctrl+C */
 #define _USE_CTLR_C
 
+/*
+Print prompt at 'microrl_init', if enable, prompt will print at startup, 
+otherwise first prompt will print after first press Enter in terminal
+NOTE!: Enable it, if you call 'microrl_init' after your communication subsystem 
+already initialize and ready to print message */
+//#define _ENABLE_INIT_PROMPT
+
 /********** END CONFIG SECTION ************/
 
 
