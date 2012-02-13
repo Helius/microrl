@@ -92,7 +92,7 @@ void microrl_set_echo (int);
 //   must return NULL-terminated string, contain complite variant splitted by 'Whitespace'
 //   If complite token found, it's must contain only one token to be complitted
 //   Empty string if complite not found, and multiple string if there are some token
-void microrl_set_complite_callback (microrl_t * this, char ** (*get_completion)(int, const char* const*));
+void microrl_set_complete_callback (microrl_t * this, char ** (*get_completion)(int, const char* const*));
 
 // pointer to callback func, that called when user press 'Enter'
 // execute func param: argc - argument count, argv - pointer array to token string

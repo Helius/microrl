@@ -64,7 +64,7 @@ For example on linux PC print callback may be:
 
 c) Call 'microrl_set_execute_callback' with pointer to you routine, what will be called if user press enter in terminal. Execute callback give a 'argc', 'argv' parametrs, like 'main' func in application. All token in 'argv' is null terminated. So you can simply walk through argv and handle commands.
 
-d) If you want completion support if user press TAB key, call 'microrl_set_completion_callback' and set you callback. It also give 'argc' and 'argv' arguments, so iterate through it and return set of complete variants. 
+d) If you want completion support if user press TAB key, call 'microrl_set_complete_callback' and set you callback. It also give 'argc' and 'argv' arguments, so iterate through it and return set of complete variants. 
 
 e) Look at 'config.h' file, for tune library for you requiring. 
 
@@ -83,7 +83,7 @@ Example of code:
 		// set callback for execute
 		microrl_set_execute_callback (prl, execute);
 		// set callback for completion (optionally)
-		microrl_set_complite_callback (prl, complet);
+		microrl_set_complete_callback (prl, complet);
 		// set callback for ctrl+c handling (optionally)
 		microrl_set_sigint_callback (prl, sigint);
 		

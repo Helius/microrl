@@ -19,7 +19,7 @@ int main (void/*int argc, char ** argv*/)
 
 #ifdef _USE_COMPLETE
 	// set callback for completion
-	microrl_set_complite_callback (prl, complet);
+	microrl_set_complete_callback (prl, complet);
 #endif
 	// set callback for Ctrl+C
 	microrl_set_sigint_callback (prl, sigint);

@@ -286,7 +286,7 @@ void microrl_init (microrl_t * this, void (*print) (const char *))
 }
 
 //*****************************************************************************
-void microrl_set_complite_callback (microrl_t * this, char ** (*get_completion)(int, const char* const*))
+void microrl_set_complete_callback (microrl_t * this, char ** (*get_completion)(int, const char* const*))
 {
 	this->get_completion = get_completion;
 }
