@@ -9,7 +9,7 @@ LDFLAGS   = -Wl,-Map,$(TARGET).map,--gc-sections -mmcu=$(MCU)
 all: $(TARGET).elf
 
 
-$(TARGET).elf: example.o ../src/microrl.o avr_misc/avr_misc.o
+$(TARGET).elf: example.o ../src/microrl.o ../src/xprintf.o avr_misc/avr_misc.o
 	$(CC) $^ -o $@ $(LDFLAGS) #$(CCFLAGS)
 	avr-objcopy -j .text -j .data -O ihex $(TARGET).elf $(TARGET).hex
 	avr-size --mcu=$(MCU) $(TARGET).elf

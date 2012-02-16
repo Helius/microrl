@@ -5,10 +5,13 @@
 #include <unistd.h> 
 #include <string.h>
 #include "../../src/config.h"
+#include "../../src/xprintf.h"
 
 //*****************************************************************************
 //dummy function, no need on linux-PC
-void init (void){};
+void init (void){
+	xdev_out (putchar);
+};
 
 //*****************************************************************************
 // print callback for microrl library

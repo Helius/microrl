@@ -5,11 +5,11 @@ BUGS and TODO:
 -- rewrite history for use more than 256 byte buffer
 */
 
-#include <stdio.h>
 #include <string.h>
 #include <ctype.h>
 #include <stdlib.h>
 #include "microrl.h"
+#include "xprintf.h"
 
 //#define DBG(...) fprintf(stderr, "\033[33m");fprintf(stderr,__VA_ARGS__);fprintf(stderr,"\033[0m");
 
@@ -227,9 +227,9 @@ static void terminal_move_cursor (microrl_t * this, int offset)
 {
 	char str[16] = {0,};
 	if (offset > 0) {
-		snprintf (str, 16, "\033[%dC", offset);
+		xsprintf (str, "\033[%dC", offset);
 	} else if (offset < 0) {
-		snprintf (str, 16, "\033[%dD", -(offset));
+		xsprintf (str, "\033[%dD", -(offset));
 	}
 	this->print (str);
 }
@@ -238,7 +238,7 @@ static void terminal_move_cursor (microrl_t * this, int offset)
 static void terminal_reset_cursor (microrl_t * this)
 {
 	char str[16];
-	snprintf (str, 16, "\033[%dD\033[%dC", _COMMAND_LINE_LEN + _PROMPT_LEN + 2,
+	xsprintf (str, "\033[%dD\033[%dC", _COMMAND_LINE_LEN + _PROMPT_LEN + 2,
 																					_PROMPT_LEN);
 	this->print (str);
 }
