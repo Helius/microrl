@@ -227,13 +227,15 @@ static void u16bit_to_str (unsigned int nmb, char * buf)
 {
 	char tmp_str [6] = {0,};
 	int i = 0;
-	if (nmb <= 0xFFFF) {
+	if ((nmb <= 0xFFFF)&&(nmb>0)) {
 		while (nmb > 0) {
 			tmp_str[i++] = (nmb % 10) + '0';
 			nmb /=10;
 		}
 		for (int j = 0; j < i; ++j)
 			*(buf++) = tmp_str [i-j-1];
+	} else if (nmb == 0) {
+		*(buf++)='0';
 	}
 	*buf = '\0';
 }
@@ -258,8 +260,13 @@ static void terminal_move_cursor (microrl_t * this, int offset)
 static void terminal_reset_cursor (microrl_t * this)
 {
 	char str[16];
-	xsprintf (str, "\033[%dD\033[%dC", _COMMAND_LINE_LEN + _PROMPT_LEN + 2,
-																					_PROMPT_LEN);
+	xsprintf (str, "\033[%dD\033[%dC", _COMMAND_LINE_LEN + _PROMPT_LEN + 2,	_PROMPT_LEN);
+	strcpy (str, "\033[");
+	u16bit_to_str ( _COMMAND_LINE_LEN + _PROMPT_LEN + 2,str+2);
+	strcat (str, "D\033[");
+	u16bit_to_str (_PROMPT_LEN, str+strlen(str));
+	strcat (str, "C");
+
 	this->print (str);
 }
 
