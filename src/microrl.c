@@ -223,36 +223,39 @@ inline static void terminal_newline (microrl_t * this)
 
 //*****************************************************************************
 // convert 16 bit value to string
+// 0 value not supported!!! just make empty string
 static void u16bit_to_str (unsigned int nmb, char * buf)
 {
 	char tmp_str [6] = {0,};
 	int i = 0;
-	if ((nmb <= 0xFFFF)&&(nmb>0)) {
+	if (nmb <= 0xFFFF) {
 		while (nmb > 0) {
 			tmp_str[i++] = (nmb % 10) + '0';
 			nmb /=10;
 		}
 		for (int j = 0; j < i; ++j)
 			*(buf++) = tmp_str [i-j-1];
-	} else if (nmb == 0) {
-		*(buf++)='0';
 	}
 	*buf = '\0';
 }
+
 
 //*****************************************************************************
 // set cursor at position from begin cmdline (after prompt) + offset
 static void terminal_move_cursor (microrl_t * this, int offset)
 {
 	char str[16] = {0,};
+
 	strcpy (str, "\033[");
 	if (offset > 0) {
 		u16bit_to_str (offset, str+2);
 		strcat (str, "C");
 	} else if (offset < 0) {
-		u16bit_to_str (-offset, str+2);
+		u16bit_to_str (-(offset), str+2);
 		strcat (str, "D");
-	}
+	} else
+		return;
+	
 	this->print (str);
 }
 
@@ -260,7 +263,6 @@ static void terminal_move_cursor (microrl_t * this, int offset)
 static void terminal_reset_cursor (microrl_t * this)
 {
 	char str[16];
-	xsprintf (str, "\033[%dD\033[%dC", _COMMAND_LINE_LEN + _PROMPT_LEN + 2,	_PROMPT_LEN);
 	strcpy (str, "\033[");
 	u16bit_to_str ( _COMMAND_LINE_LEN + _PROMPT_LEN + 2,str+2);
 	strcat (str, "D\033[");
