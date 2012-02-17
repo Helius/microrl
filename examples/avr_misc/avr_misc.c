@@ -2,7 +2,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <avr/io.h>
-#include "../../src/xprintf.h"
 
 /*
 AVR platform specific implementation routines (for Atmega8, rewrite for your MC)
@@ -41,15 +40,14 @@ void init (void)
 	UCSRB = (1<<RXEN) | (1<<TXEN);
 	DDRB=0xFF;
 	DDRD=0xFF;
-	xdev_out (put_char);
 }
 
-//*****************************************************************************
-void put_char (unsigned char ch)
-{
-		while (!( UCSRA & (1<<UDRE)));
-		UDR = (unsigned char) ch;
-}
+////*****************************************************************************
+//void put_char (unsigned char ch)
+//{
+//		while (!( UCSRA & (1<<UDRE)));
+//		UDR = (unsigned char) ch;
+//}
 
 //*****************************************************************************
 void print (const char * str)

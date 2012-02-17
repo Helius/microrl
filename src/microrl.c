@@ -9,7 +9,6 @@ BUGS and TODO:
 #include <ctype.h>
 #include <stdlib.h>
 #include "microrl.h"
-#include "xprintf.h"
 
 //#define DBG(...) fprintf(stderr, "\033[33m");fprintf(stderr,__VA_ARGS__);fprintf(stderr,"\033[0m");
 
