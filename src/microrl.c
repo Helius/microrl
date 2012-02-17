@@ -9,6 +9,9 @@ BUGS and TODO:
 #include <ctype.h>
 #include <stdlib.h>
 #include "microrl.h"
+#ifdef _USE_LIBC_STDIO
+#include <stdio.h>
+#endif
 
 //#define DBG(...) fprintf(stderr, "\033[33m");fprintf(stderr,__VA_ARGS__);fprintf(stderr,"\033[0m");
 
@@ -220,6 +223,7 @@ inline static void terminal_newline (microrl_t * this)
 	this->print ("\n\r");
 }
 
+#ifndef _USE_LIBC_STDIO
 //*****************************************************************************
 // convert 16 bit value to string
 // 0 value not supported!!! just make empty string
@@ -237,6 +241,7 @@ static void u16bit_to_str (unsigned int nmb, char * buf)
 	}
 	*buf = '\0';
 }
+#endif
 
 
 //*****************************************************************************
@@ -244,7 +249,13 @@ static void u16bit_to_str (unsigned int nmb, char * buf)
 static void terminal_move_cursor (microrl_t * this, int offset)
 {
 	char str[16] = {0,};
-
+#ifdef _USE_LIBC_STDIO 
+	if (offset > 0) {
+		snprintf (str, 16, "\033[%dC", offset);
+	} else if (offset < 0) {
+		snprintf (str, 16, "\033[%dD", -(offset));
+	}
+#else 
 	strcpy (str, "\033[");
 	if (offset > 0) {
 		u16bit_to_str (offset, str+2);
@@ -254,7 +265,7 @@ static void terminal_move_cursor (microrl_t * this, int offset)
 		strcat (str, "D");
 	} else
 		return;
-	
+#endif	
 	this->print (str);
 }
 
@@ -262,12 +273,17 @@ static void terminal_move_cursor (microrl_t * this, int offset)
 static void terminal_reset_cursor (microrl_t * this)
 {
 	char str[16];
+#ifdef _USE_LIBC_STDIO
+	snprintf (str, 16, "\033[%dD\033[%dC", \
+						_COMMAND_LINE_LEN + _PROMPT_LEN + 2, _PROMPT_LEN);
+
+#else
 	strcpy (str, "\033[");
 	u16bit_to_str ( _COMMAND_LINE_LEN + _PROMPT_LEN + 2,str+2);
 	strcat (str, "D\033[");
 	u16bit_to_str (_PROMPT_LEN, str+strlen(str));
 	strcat (str, "C");
-
+#endif
 	this->print (str);
 }
 
