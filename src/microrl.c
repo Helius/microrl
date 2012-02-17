@@ -222,14 +222,34 @@ inline static void terminal_newline (microrl_t * this)
 }
 
 //*****************************************************************************
+// convert 16 bit value to string
+static void u16bit_to_str (unsigned int nmb, char * buf)
+{
+	char tmp_str [6] = {0,};
+	int i = 0;
+	if (nmb <= 0xFFFF) {
+		while (nmb > 0) {
+			tmp_str[i++] = (nmb % 10) + '0';
+			nmb /=10;
+		}
+		for (int j = 0; j < i; ++j)
+			*(buf++) = tmp_str [i-j-1];
+	}
+	*buf = '\0';
+}
+
+//*****************************************************************************
 // set cursor at position from begin cmdline (after prompt) + offset
 static void terminal_move_cursor (microrl_t * this, int offset)
 {
 	char str[16] = {0,};
+	strcpy (str, "\033[");
 	if (offset > 0) {
-		xsprintf (str, "\033[%dC", offset);
+		u16bit_to_str (offset, str+2);
+		strcat (str, "C");
 	} else if (offset < 0) {
-		xsprintf (str, "\033[%dD", -(offset));
+		u16bit_to_str (-offset, str+2);
+		strcat (str, "D");
 	}
 	this->print (str);
 }
