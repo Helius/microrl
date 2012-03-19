@@ -29,6 +29,8 @@ char * set_clear_key [] = {_SCMD_PB, _SCMD_PD};
 char * compl_world [_NUM_OF_CMD + 1];
 
 
+void put_char (unsigned char ch);
+
 
 //*****************************************************************************
 void init (void)
@@ -39,6 +41,13 @@ void init (void)
 	DDRB=0xFF;
 	DDRD=0xFF;
 }
+
+////*****************************************************************************
+//void put_char (unsigned char ch)
+//{
+//		while (!( UCSRA & (1<<UDRE)));
+//		UDR = (unsigned char) ch;
+//}
 
 //*****************************************************************************
 void print (const char * str)

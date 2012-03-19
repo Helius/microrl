@@ -60,6 +60,14 @@ use Ctrl+A(B,F,P,N,A,E,H,K,U,C) see README, but decrease code memory.*/
 #define _USE_ESC_SEQ
 
 /*
+Use snprintf from you standard complier library, but it gives some overhead.
+If not defined, use my own u16int_to_str variant, it's save about 800 byte of code size
+on AVR (avr-gcc build).
+Try to build with and without, and compare total code size for tune library.
+*/
+#define _USE_LIBC_STDIO
+
+/*
 Enable 'interrupt signal' callback, if user press Ctrl+C */
 #define _USE_CTLR_C
 
@@ -68,7 +76,10 @@ Print prompt at 'microrl_init', if enable, prompt will print at startup,
 otherwise first prompt will print after first press Enter in terminal
 NOTE!: Enable it, if you call 'microrl_init' after your communication subsystem 
 already initialize and ready to print message */
-//#define _ENABLE_INIT_PROMPT
+#undef _ENABLE_INIT_PROMPT
+
+
+
 
 /********** END CONFIG SECTION ************/
 

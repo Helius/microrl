@@ -8,7 +8,8 @@
 
 //*****************************************************************************
 //dummy function, no need on linux-PC
-void init (void){};
+void init (void){
+};
 
 //*****************************************************************************
 // print callback for microrl library

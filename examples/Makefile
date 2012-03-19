@@ -10,7 +10,7 @@ TARGET=microrl_test
 all: microrl_test
 
 
-microrl_test: example.o ../src/microrl.o unix_misc/unix_misc.o
+microrl_test: example.o ../src/microrl.o  unix_misc/unix_misc.o
 	$(CC) $^ -o $@ $(LDFLAGS)
 
 %.o: %.c
