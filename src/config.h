@@ -5,7 +5,7 @@ Autor: Eugene Samoylov aka Helius (ghelius@gmail.com)
 #ifndef _MICRORL_CONFIG_H_
 #define _MICRORL_CONFIG_H_
 
-#define MICRORL_LIB_VER "1.3"
+#define MICRORL_LIB_VER "1.4"
 
 /*********** CONFIG SECTION **************/
 /*
