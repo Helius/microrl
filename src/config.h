@@ -78,8 +78,21 @@ NOTE!: Enable it, if you call 'microrl_init' after your communication subsystem
 already initialize and ready to print message */
 #undef _ENABLE_INIT_PROMPT
 
+/*
+New line symbol */
+#define _ENDL_CRLF
 
-
+#if defined(_ENDL_CR)
+#define ENDL "\r"
+#elif defined(_ENDL_CRLF)
+#define ENDL "\r\n"
+#elif defined(_ENDL_LF)
+#define ENDL "\n"
+#elif defined(_ENDL_LFCR)
+#define ENDL "\n\r"
+#else
+#error "You must define new line symbol."
+#endif
 
 /********** END CONFIG SECTION ************/
 
