@@ -515,33 +515,33 @@ static void microrl_get_complite (microrl_t * this)
 
 //*****************************************************************************
 void new_line_handler(microrl_t * this){
-  int status;
+	int status;
 
-  terminal_newline (this);
+	terminal_newline (this);
 #ifdef _USE_HISTORY
-  if (this->cmdlen > 0)
-    hist_save_line (&this->ring_hist, this->cmdline, this->cmdlen);
+	if (this->cmdlen > 0)
+		hist_save_line (&this->ring_hist, this->cmdline, this->cmdlen);
 #endif
-  status = split (this, this->cmdlen);
-  if (status == -1){
-  //          this->print ("ERROR: Max token amount exseed\n");
-    this->print ("ERROR:too many tokens");
-    this->print (ENDL);
-  }
-  if ((status > 0) && (this->execute != NULL))
-    this->execute (status, this->tkn_arr);
-  print_prompt (this);
-  this->cmdlen = 0;
-  this->cursor = 0;
-  memset(this->cmdline, 0, _COMMAND_LINE_LEN);
+	status = split (this, this->cmdlen);
+	if (status == -1){
+		//          this->print ("ERROR: Max token amount exseed\n");
+		this->print ("ERROR:too many tokens");
+		this->print (ENDL);
+	}
+	if ((status > 0) && (this->execute != NULL))
+		this->execute (status, this->tkn_arr);
+	print_prompt (this);
+	this->cmdlen = 0;
+	this->cursor = 0;
+	memset(this->cmdline, 0, _COMMAND_LINE_LEN);
 #ifdef _USE_HISTORY
-  this->ring_hist.cur = 0;
+	this->ring_hist.cur = 0;
 #endif
 }
 
 //*****************************************************************************
 #if (defined(_ENDL_CRLF) || defined(_ENDL_LFCR))
-  static int tmpch = 0;
+	static int tmpch = 0;
 #endif
 
 void microrl_insert_char (microrl_t * this, int ch)
@@ -558,33 +558,33 @@ void microrl_insert_char (microrl_t * this, int ch)
 		switch (ch) {
 			//-----------------------------------------------------
 #ifdef _ENDL_CR
-      case KEY_CR:
-        new_line_handler(this);
-      break;
-      case KEY_LF:
-      break;
+			case KEY_CR:
+				new_line_handler(this);
+			break;
+			case KEY_LF:
+			break;
 #elif defined(_ENDL_CRLF)
-      case KEY_CR:
-        tmpch = KEY_CR;
-      break;
-      case KEY_LF:
-        if (tmpch == KEY_CR)
-          new_line_handler(this);
-      break;
+			case KEY_CR:
+				tmpch = KEY_CR;
+			break;
+			case KEY_LF:
+			if (tmpch == KEY_CR)
+				new_line_handler(this);
+			break;
 #elif defined(_ENDL_LFCR)
-      case KEY_LF:
-        tmpch = KEY_LF;
-      break;
-      case KEY_CR:
-        if (tmpch == KEY_LF)
-          new_line_handler(this);
-      break;
+			case KEY_LF:
+				tmpch = KEY_LF;
+			break;
+			case KEY_CR:
+			if (tmpch == KEY_LF)
+				new_line_handler(this);
+			break;
 #else
-      case KEY_CR:
-      break;
-      case KEY_LF:
-        new_line_handler(this);
-      break;
+			case KEY_CR:
+			break;
+			case KEY_LF:
+				new_line_handler(this);
+			break;
 #endif
 			//-----------------------------------------------------
 #ifdef _USE_COMPLETE
