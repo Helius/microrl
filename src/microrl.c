@@ -137,9 +137,11 @@ static int hist_restore_line (ring_history_t * pThis, char * line, int dir)
 					pThis->cur++;
 				// obtain saved line
 				if (pThis->ring_buf [header] + header < _RING_HISTORY_LEN) {
+					memset (line, 0, _COMMAND_LINE_LEN);
 					memcpy (line, pThis->ring_buf + header + 1, pThis->ring_buf[header]);
 				} else {
 					int part0 = _RING_HISTORY_LEN - header - 1;
+					memset (line, 0, _COMMAND_LINE_LEN);
 					memcpy (line, pThis->ring_buf + header + 1, part0);
 					memcpy (line + part0, pThis->ring_buf, pThis->ring_buf[header] - part0);
 				}
