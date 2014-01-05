@@ -373,12 +373,10 @@ static void hist_search (microrl_t * pThis, int dir)
 // handling escape sequences
 static int escape_process (microrl_t * pThis, char ch)
 {
-	static int seq = 0;
-
 	if (ch == '[') {
-		seq = _ESC_BRACKET;
+		pThis->escape_seq = _ESC_BRACKET;
 		return 0;
-	} else if (seq == _ESC_BRACKET) {
+	} else if (pThis->escape_seq == _ESC_BRACKET) {
 		if (ch == 'A') {
 #ifdef _USE_HISTORY
 			hist_search (pThis, _HIST_UP);
@@ -402,23 +400,22 @@ static int escape_process (microrl_t * pThis, char ch)
 			}
 			return 1;
 		} else if (ch == '7') {
-			seq = _ESC_HOME;
+			pThis->escape_seq = _ESC_HOME;
 			return 0;
 		} else if (ch == '8') {
-			seq = _ESC_END;
+			pThis->escape_seq = _ESC_END;
 			return 0;
 		} 
 	} else if (ch == '~') {
-			if (seq == _ESC_HOME) {
-				terminal_reset_cursor (pThis);
-				pThis->cursor = 0;
-				return 1;
-			} else if (seq == _ESC_END) {
-				terminal_move_cursor (pThis, pThis->cmdlen-pThis->cursor);
-				pThis->cursor = pThis->cmdlen;
-				return 1;
-			}
-		
+		if (pThis->escape_seq == _ESC_HOME) {
+			terminal_reset_cursor (pThis);
+			pThis->cursor = 0;
+			return 1;
+		} else if (pThis->escape_seq == _ESC_END) {
+			terminal_move_cursor (pThis, pThis->cmdlen-pThis->cursor);
+			pThis->cursor = pThis->cmdlen;
+			return 1;
+		}
 	}
 
 	/* unknown escape sequence, stop */
@@ -556,19 +553,13 @@ void new_line_handler(microrl_t * pThis){
 }
 
 //*****************************************************************************
-#if (defined(_ENDL_CRLF) || defined(_ENDL_LFCR))
-	static int tmpch = 0;
-#endif
 
 void microrl_insert_char (microrl_t * pThis, int ch)
 {
-	
 #ifdef _USE_ESC_SEQ
-	static int escape = false;
-	
-	if (escape) {
+	if (pThis->escape) {
 		if (escape_process(pThis, ch))
-			escape = 0;
+			pThis->escape = 0;
 	} else {
 #endif
 		switch (ch) {
@@ -581,18 +572,18 @@ void microrl_insert_char (microrl_t * pThis, int ch)
 			break;
 #elif defined(_ENDL_CRLF)
 			case KEY_CR:
-				tmpch = KEY_CR;
+				pThis->tmpch = KEY_CR;
 			break;
 			case KEY_LF:
-			if (tmpch == KEY_CR)
+			if (pThis->tmpch == KEY_CR)
 				new_line_handler(pThis);
 			break;
 #elif defined(_ENDL_LFCR)
 			case KEY_LF:
-				tmpch = KEY_LF;
+				pThis->tmpch = KEY_LF;
 			break;
 			case KEY_CR:
-			if (tmpch == KEY_LF)
+			if (pThis->tmpch == KEY_LF)
 				new_line_handler(pThis);
 			break;
 #else
@@ -611,7 +602,7 @@ void microrl_insert_char (microrl_t * pThis, int ch)
 			//-----------------------------------------------------
 			case KEY_ESC:
 #ifdef _USE_ESC_SEQ
-				escape = 1;
+				pThis->escape = 1;
 #endif
 			break;
 			//-----------------------------------------------------

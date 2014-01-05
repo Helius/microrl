@@ -65,6 +65,13 @@ typedef struct {
 
 // microrl struct, contain internal library data
 typedef struct {
+#ifdef _USE_ESC_SEQ
+	char escape_seq;
+	char escape;
+#endif
+#if (defined(_ENDL_CRLF) || defined(_ENDL_LFCR))
+	char tmpch;
+#endif
 #ifdef _USE_HISTORY
 	ring_history_t ring_hist;          // history object
 #endif
