@@ -236,13 +236,13 @@ inline static void terminal_newline (microrl_t * pThis)
 static char *u16bit_to_str (unsigned int nmb, char * buf)
 {
 	char tmp_str [6] = {0,};
-	int i = 0;
+	int i = 0, j;
 	if (nmb <= 0xFFFF) {
 		while (nmb > 0) {
 			tmp_str[i++] = (nmb % 10) + '0';
 			nmb /=10;
 		}
-		for (int j = 0; j < i; ++j)
+		for (j = 0; j < i; ++j)
 			*(buf++) = tmp_str [i-j-1];
 	}
 	*buf = '\0';
@@ -303,7 +303,8 @@ static void terminal_print_line (microrl_t * pThis, int pos, int cursor)
 	pThis->print ("\033[K");    // delete all from cursor to end
 
 	char nch [] = {0,0};
-	for (int i = pos; i < pThis->cmdlen; i++) {
+	int i;
+	for (i = pos; i < pThis->cmdlen; i++) {
 		nch [0] = pThis->cmdline [i];
 		if (nch[0] == '\0')
 			nch[0] = ' ';
@@ -429,11 +430,12 @@ static int escape_process (microrl_t * pThis, char ch)
 // insert len char of text at cursor position
 static int microrl_insert_text (microrl_t * pThis, char * text, int len)
 {
+	int i;
 	if (pThis->cmdlen + len < _COMMAND_LINE_LEN) {
 		memmove (pThis->cmdline + pThis->cursor + len,
 						 pThis->cmdline + pThis->cursor,
 						 pThis->cmdlen - pThis->cursor);
-		for (int i = 0; i < len; i++) {
+		for (i = 0; i < len; i++) {
 			pThis->cmdline [pThis->cursor + i] = text [i];
 			if (pThis->cmdline [pThis->cursor + i] == ' ') {
 				pThis->cmdline [pThis->cursor + i] = 0;
