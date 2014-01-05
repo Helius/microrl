@@ -42,6 +42,8 @@
 
 #define KEY_DEL 127 /**< Delete (not a real control character...) */
 
+#define IS_CONTROL_CHAR(x) ((x)<=31)
+
 // direction of history navigation
 #define _HIST_UP   0
 #define _HIST_DOWN 1
