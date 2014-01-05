@@ -368,7 +368,8 @@ static int escape_process (microrl_t * pThis, char ch)
 	static int seq = 0;
 
 	if (ch == '[') {
-		seq = _ESC_BRACKET;	
+		seq = _ESC_BRACKET;
+		return 0;
 	} else if (seq == _ESC_BRACKET) {
 		if (ch == 'A') {
 #ifdef _USE_HISTORY
@@ -411,7 +412,9 @@ static int escape_process (microrl_t * pThis, char ch)
 			}
 		
 	}
-	return 0;
+
+	/* unknown escape sequence, stop */
+	return 1;
 }
 #endif
 
