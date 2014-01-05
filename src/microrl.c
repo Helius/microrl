@@ -168,9 +168,12 @@ static int hist_restore_line (ring_history_t * pThis, char * line, int dir)
 				memcpy (line + part0, pThis->ring_buf, pThis->ring_buf[header] - part0);
 			}
 			return pThis->ring_buf[header];
+		} else {
+			/* empty line */
+			return 0;
 		}
 	}
-	return 0;
+	return -1;
 }
 #endif
 
@@ -357,12 +360,12 @@ void microrl_set_sigint_callback (microrl_t * pThis, void (*sigintf)(void))
 #ifdef _USE_ESC_SEQ
 static void hist_search (microrl_t * pThis, int dir)
 {
-int len = hist_restore_line (&pThis->ring_hist, pThis->cmdline, dir);
-if (len) {
-	pThis->cursor = pThis->cmdlen = len;
-	terminal_reset_cursor (pThis);
-	terminal_print_line (pThis, 0, pThis->cursor);
-}
+	int len = hist_restore_line (&pThis->ring_hist, pThis->cmdline, dir);
+	if (len >= 0) {
+		pThis->cursor = pThis->cmdlen = len;
+		terminal_reset_cursor (pThis);
+		terminal_print_line (pThis, 0, pThis->cursor);
+	}
 }
 
 //*****************************************************************************
