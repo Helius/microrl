@@ -186,7 +186,7 @@ static int hist_restore_line (ring_history_t * pThis, char * line, int dir)
 
 //*****************************************************************************
 // split cmdline to tkn array and return nmb of token
-static int split (microrl_t * pThis, int limit)
+static int split (microrl_t * pThis, int limit, char const ** tkn_arr)
 {
 	int i = 0;
 	int ind = 0;
@@ -196,7 +196,7 @@ static int split (microrl_t * pThis, int limit)
 			ind++;
 		}
 		if (!(ind < limit)) return i;
-		pThis->tkn_arr[i++] = pThis->cmdline + ind;
+		tkn_arr[i++] = pThis->cmdline + ind;
 		if (i >= _COMMAND_TOKEN_NMB) {
 			return -1;
 		}
@@ -488,15 +488,16 @@ static int common_len (char ** arr)
 //*****************************************************************************
 static void microrl_get_complite (microrl_t * pThis) 
 {
+	char const * tkn_arr[_COMMAND_TOKEN_NMB];
 	char ** compl_token; 
 	
 	if (pThis->get_completion == NULL) // callback was not set
 		return;
 	
-	int status = split (pThis, pThis->cursor);
+	int status = split (pThis, pThis->cursor, tkn_arr);
 	if (pThis->cmdline[pThis->cursor-1] == '\0')
-		pThis->tkn_arr[status++] = "";
-	compl_token = pThis->get_completion (status, pThis->tkn_arr);
+		tkn_arr[status++] = "";
+	compl_token = pThis->get_completion (status, tkn_arr);
 	if (compl_token[0] != NULL) {
 		int i = 0;
 		int len;
@@ -516,8 +517,8 @@ static void microrl_get_complite (microrl_t * pThis)
 		}
 		
 		if (len) {
-			microrl_insert_text (pThis, compl_token[0] + strlen(pThis->tkn_arr[status-1]), 
-																	len - strlen(pThis->tkn_arr[status-1]));
+			microrl_insert_text (pThis, compl_token[0] + strlen(tkn_arr[status-1]), 
+																	len - strlen(tkn_arr[status-1]));
 			if (compl_token[1] == NULL) 
 				microrl_insert_text (pThis, " ", 1);
 		}
@@ -529,6 +530,7 @@ static void microrl_get_complite (microrl_t * pThis)
 
 //*****************************************************************************
 void new_line_handler(microrl_t * pThis){
+	char const * tkn_arr [_COMMAND_TOKEN_NMB];
 	int status;
 
 	terminal_newline (pThis);
@@ -536,14 +538,14 @@ void new_line_handler(microrl_t * pThis){
 	if (pThis->cmdlen > 0)
 		hist_save_line (&pThis->ring_hist, pThis->cmdline, pThis->cmdlen);
 #endif
-	status = split (pThis, pThis->cmdlen);
+	status = split (pThis, pThis->cmdlen, tkn_arr);
 	if (status == -1){
 		//          pThis->print ("ERROR: Max token amount exseed\n");
 		pThis->print ("ERROR:too many tokens");
 		pThis->print (ENDL);
 	}
 	if ((status > 0) && (pThis->execute != NULL))
-		pThis->execute (status, pThis->tkn_arr);
+		pThis->execute (status, tkn_arr);
 	print_prompt (pThis);
 	pThis->cmdlen = 0;
 	pThis->cursor = 0;
