@@ -229,7 +229,8 @@ inline static void terminal_newline (microrl_t * pThis)
 //*****************************************************************************
 // convert 16 bit value to string
 // 0 value not supported!!! just make empty string
-static void u16bit_to_str (unsigned int nmb, char * buf)
+// Returns pointer to a buffer tail
+static char *u16bit_to_str (unsigned int nmb, char * buf)
 {
 	char tmp_str [6] = {0,};
 	int i = 0;
@@ -242,6 +243,7 @@ static void u16bit_to_str (unsigned int nmb, char * buf)
 			*(buf++) = tmp_str [i-j-1];
 	}
 	*buf = '\0';
+	return buf;
 }
 #endif
 
@@ -258,13 +260,14 @@ static void terminal_move_cursor (microrl_t * pThis, int offset)
 		snprintf (str, 16, "\033[%dD", -(offset));
 	}
 #else 
+	char *endstr;
 	strcpy (str, "\033[");
 	if (offset > 0) {
-		u16bit_to_str (offset, str+2);
-		strcat (str, "C");
+		endstr = u16bit_to_str (offset, str+2);
+		strcpy (endstr, "C");
 	} else if (offset < 0) {
-		u16bit_to_str (-(offset), str+2);
-		strcat (str, "D");
+		endstr = u16bit_to_str (-(offset), str+2);
+		strcpy (endstr, "D");
 	} else
 		return;
 #endif	
@@ -280,11 +283,12 @@ static void terminal_reset_cursor (microrl_t * pThis)
 						_COMMAND_LINE_LEN + _PROMPT_LEN + 2, _PROMPT_LEN);
 
 #else
+	char *endstr;
 	strcpy (str, "\033[");
-	u16bit_to_str ( _COMMAND_LINE_LEN + _PROMPT_LEN + 2,str+2);
-	strcat (str, "D\033[");
-	u16bit_to_str (_PROMPT_LEN, str+strlen(str));
-	strcat (str, "C");
+	endstr = u16bit_to_str ( _COMMAND_LINE_LEN + _PROMPT_LEN + 2,str+2);
+	strcpy (endstr, "D\033["); endstr += 3;
+	endstr = u16bit_to_str (_PROMPT_LEN, endstr);
+	strcpy (endstr, "C");
 #endif
 	pThis->print (str);
 }
