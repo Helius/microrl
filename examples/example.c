@@ -6,13 +6,15 @@
 // create microrl object and pointer on it
 microrl_t rl;
 microrl_t * prl = &rl;
+char microrl_cmdline[_COMMAND_LINE_LEN];
+ring_history_t microrl_history;
 
 //*****************************************************************************
 int main (void/*int argc, char ** argv*/)
 {
 	init ();
 	// call init with ptr to microrl instance and print callback
-	microrl_init (prl, print);
+	microrl_init (prl, microrl_cmdline, &microrl_history, print);
 	// set callback for execute
 	microrl_set_execute_callback (prl, execute);
 
