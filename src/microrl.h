@@ -42,6 +42,8 @@
 
 #define KEY_DEL 127 /**< Delete (not a real control character...) */
 
+#define IS_CONTROL_CHAR(x) ((x)<=31)
+
 // direction of history navigation
 #define _HIST_UP   0
 #define _HIST_DOWN 1
@@ -63,6 +65,13 @@ typedef struct {
 
 // microrl struct, contain internal library data
 typedef struct {
+#ifdef _USE_ESC_SEQ
+	char escape_seq;
+	char escape;
+#endif
+#if (defined(_ENDL_CRLF) || defined(_ENDL_LFCR))
+	char tmpch;
+#endif
 #ifdef _USE_HISTORY
 	ring_history_t ring_hist;          // history object
 #endif
@@ -70,7 +79,6 @@ typedef struct {
 	char cmdline [_COMMAND_LINE_LEN];  // cmdline buffer
 	int cmdlen;                        // last position in command line
 	int cursor;                        // input cursor
-	char const * tkn_arr [_COMMAND_TOKEN_NMB];                        // array of token for call 'execute' callback
 	int (*execute) (int argc, const char * const * argv );            // ptr to 'execute' callback
 	char ** (*get_completion) (int argc, const char * const * argv ); // ptr to 'completion' callback
 	void (*print) (const char *);                                     // ptr to 'print' callback
