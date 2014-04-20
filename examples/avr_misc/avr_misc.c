@@ -4,7 +4,7 @@
 #include <avr/io.h>
 
 /*
-AVR platform specific implementation routines (for Atmega8, rewrite for your MC)
+AVR platform specific implementation routines(for Atmega8, rewrite for your MC)
 */
 #define _AVR_DEMO_VER "1.0"
 
@@ -29,66 +29,69 @@ char * set_clear_key [] = {_SCMD_PB, _SCMD_PD};
 char * compl_world [_NUM_OF_CMD + 1];
 
 
-void put_char (unsigned char ch);
+void put_char(void* user_handle, unsigned char ch);
 
 
 //*****************************************************************************
-void init (void)
+void init(void* user_handle)
 {
+	(void)user_handle; /* Not used in this example */
 	UBRRL = 8; // 19200 bps on 16MHz
-	UCSRC = (1<<URSEL) | (1<<UCSZ1) | (1<<UCSZ0);
-	UCSRB = (1<<RXEN) | (1<<TXEN);
+	UCSRC =(1<<URSEL) |(1<<UCSZ1) |(1<<UCSZ0);
+	UCSRB =(1<<RXEN) |(1<<TXEN);
 	DDRB=0xFF;
 	DDRD=0xFF;
 }
 
 ////*****************************************************************************
-//void put_char (unsigned char ch)
+//void put_char(void* user_handle, unsigned char ch)
 //{
-//		while (!( UCSRA & (1<<UDRE)));
-//		UDR = (unsigned char) ch;
+//		while(!( UCSRA &(1<<UDRE)));
+//		UDR =(unsigned char) ch;
 //}
 
 //*****************************************************************************
-void print (const char * str)
+void print(void* user_handle, const char * str)
 {
+	(void)user_handle; /* Not used in this example */
 	int i = 0;
-	while (str [i] != 0) {
-		while (!( UCSRA & (1<<UDRE)));
+	while(str [i] != 0) {
+		while(!( UCSRA &(1<<UDRE)));
 		UDR = str[i++];
 	}
 }
 
 //*****************************************************************************
-char get_char (void) 
+char get_char(void* user_handle)
 {
-	while (!(UCSRA & (1<<RXC)));
+	(void)user_handle; /* Not used in this example */
+	while(!(UCSRA &(1<<RXC)));
 	return UDR;
 }
 
 //*****************************************************************************
-void print_help (void)
+void print_help(void* user_handle)
 {
-	print ("Use TAB key for completion\n\rCommand:\n\r");
-	print ("\tclear               - clear screen\n\r");
-	print ("\tset_port port pin   - set 1 port[pin] value, support only 'port_b' and 'port_d'\n\r");
-	print ("\tclear_port port pin - set 0 port[pin] value, support only 'port_b' and 'port_d'\n\r");
+	print(user_handle, "Use TAB key for completion\n\rCommand:\n\r");
+	print(user_handle, "\tclear               - clear screen\n\r");
+	print(user_handle, "\tset_port port pin   - set 1 port[pin] value, support only 'port_b' and 'port_d'\n\r");
+	print(user_handle, "\tclear_port port pin - set 0 port[pin] value, support only 'port_b' and 'port_d'\n\r");
 }
 
 //*****************************************************************************
-void set_port_val (unsigned char * port, int pin, int val)
+void set_port_val(void* user_handle, unsigned char * port, int pin, int val)
 {
-	if ((*port == PORTD) && (pin < 2) && (pin > 7)) {
-		print ("only 2..7 pin avialable for PORTD\n\r");
+	if((*port == PORTD) &&(pin < 2) &&(pin > 7)) {
+		print(user_handle, "only 2..7 pin avialable for PORTD\n\r");
 		return;
 	}
 	
-	if ((*port == PORTB) && (pin > 5)) {
-		print ("only 0..5 pin avialable for PORTB\n\r");
+	if((*port == PORTB) &&(pin > 5)) {
+		print(user_handle, "only 0..5 pin avialable for PORTB\n\r");
 		return;
 	}
 
-	if (val) {
+	if(val) {
 		(*port) |= 1 << pin;
 	} else {
 		(*port) &= ~(1<<pin);
@@ -98,55 +101,55 @@ void set_port_val (unsigned char * port, int pin, int val)
 //*****************************************************************************
 // execute callback for microrl library
 // do what you want here, but don't write to argv!!! read only!!
-int execute (int argc, const char * const * argv)
+int execute(void* user_handle, int argc, const char * const * argv)
 {
 	int i = 0;
 	// just iterate through argv word and compare it with your commands
-	while (i < argc) {
-		if (strcmp (argv[i], _CMD_HELP) == 0) {
-			print ("microrl v");
-			print (MICRORL_LIB_VER);
-			print (" library AVR DEMO v");
-			print (_AVR_DEMO_VER);
-			print("\n\r");
-			print_help ();        // print help
-		} else if (strcmp (argv[i], _CMD_CLEAR) == 0) {
-			print ("\033[2J");    // ESC seq for clear entire screen
-			print ("\033[H");     // ESC seq for move cursor at left-top corner
-		} else if ((strcmp (argv[i], _CMD_SET) == 0) || 
-							(strcmp (argv[i], _CMD_CLR) == 0)) {
-			if (++i < argc) {
-				int val = strcmp (argv[i-1], _CMD_CLR);
+	while(i < argc) {
+		if(strcmp(argv[i], _CMD_HELP) == 0) {
+			print(user_handle,"microrl v");
+			print(user_handle,MICRORL_LIB_VER);
+			print(user_handle," library AVR DEMO v");
+			print(user_handle,_AVR_DEMO_VER);
+			print(user_handle,"\n\r");
+			print_help(user_handle);        // print help
+		} else if(strcmp(argv[i], _CMD_CLEAR) == 0) {
+			print(user_handle,"\033[2J");    // ESC seq for clear entire screen
+			print(user_handle,"\033[H");     // ESC seq for move cursor at left-top corner
+		} else if((strcmp(argv[i], _CMD_SET) == 0) || 
+							(strcmp(argv[i], _CMD_CLR) == 0)) {
+			if(++i < argc) {
+				int val = strcmp(argv[i-1], _CMD_CLR);
 				unsigned char * port = NULL;
 				int pin = 0;
-				if (strcmp (argv[i], _SCMD_PD) == 0) {
-					port = (unsigned char *)&PORTD;
-				} else if (strcmp (argv[i], _SCMD_PB) == 0) {
-					port = (unsigned char *)&PORTB;
+				if(strcmp(argv[i], _SCMD_PD) == 0) {
+					port =(unsigned char *)&PORTD;
+				} else if(strcmp(argv[i], _SCMD_PB) == 0) {
+					port =(unsigned char *)&PORTB;
 				} else {
-					print ("only '");
-					print (_SCMD_PB);
-					print ("' and '");
-					print (_SCMD_PD);
-					print ("' support\n\r");
+					print(user_handle,"only '");
+					print(user_handle,_SCMD_PB);
+					print(user_handle,"' and '");
+					print(user_handle,_SCMD_PD);
+					print(user_handle,"' support\n\r");
 					return 1;
 				}
-				if (++i < argc) {
-					pin = atoi (argv[i]);
-					set_port_val (port, pin, val);
+				if(++i < argc) {
+					pin = atoi(argv[i]);
+					set_port_val(user_handle, port, pin, val);
 					return 0;
 				} else {
-					print ("specify pin number, use Tab\n\r");
+					print(user_handle,"specify pin number, use Tab\n\r");
 					return 1;
 				}
 			} else {
-					print ("specify port, use Tab\n\r");
+					print(user_handle,"specify port, use Tab\n\r");
 				return 1;
 			}
 		} else {
-			print ("command: '");
-			print ((char*)argv[i]);
-			print ("' Not found.\n\r");
+			print(user_handle,"command: '");
+			print(user_handle,(char*)argv[i]);
+			print(user_handle,"' Not found.\n\r");
 		}
 		i++;
 	}
@@ -156,34 +159,35 @@ int execute (int argc, const char * const * argv)
 #ifdef _USE_COMPLETE
 //*****************************************************************************
 // completion callback for microrl library
-char ** complet (int argc, const char * const * argv)
+char ** complet(void* user_handle, int argc, const char * const * argv)
 {
+	(void)user_handle; /* Not used in this example */
 	int j = 0;
 
 	compl_world [0] = NULL;
 
 	// if there is token in cmdline
-	if (argc == 1) {
+	if(argc == 1) {
 		// get last entered token
-		char * bit = (char*)argv [argc-1];
+		char * bit =(char*)argv [argc-1];
 		// iterate through our available token and match it
-		for (int i = 0; i < _NUM_OF_CMD; i++) {
-			// if token is matched (text is part of our token starting from 0 char)
-			if (strstr(keyworld [i], bit) == keyworld [i]) {
+		for(int i = 0; i < _NUM_OF_CMD; i++) {
+			// if token is matched(text is part of our token starting from 0 char)
+			if(strstr(keyworld [i], bit) == keyworld [i]) {
 				// add it to completion set
 				compl_world [j++] = keyworld [i];
 			}
 		}
-	}	else if ((argc > 1) && ((strcmp (argv[0], _CMD_SET)==0) || 
-													 (strcmp (argv[0], _CMD_CLR)==0))) { // if command needs subcommands
+	}	else if((argc > 1) &&((strcmp(argv[0], _CMD_SET)==0) || 
+													(strcmp(argv[0], _CMD_CLR)==0))) { // if command needs subcommands
 		// iterate through subcommand
-		for (int i = 0; i < _NUM_OF_SETCLEAR_SCMD; i++) {
-			if (strstr (set_clear_key [i], argv [argc-1]) == set_clear_key [i]) {
+		for(int i = 0; i < _NUM_OF_SETCLEAR_SCMD; i++) {
+			if(strstr(set_clear_key [i], argv [argc-1]) == set_clear_key [i]) {
 				compl_world [j++] = set_clear_key [i];
 			}
 		}
 	} else { // if there is no token in cmdline, just print all available token
-		for (; j < _NUM_OF_CMD; j++) {
+		for(; j < _NUM_OF_CMD; j++) {
 			compl_world[j] = keyworld [j];
 		}
 	}
@@ -196,7 +200,7 @@ char ** complet (int argc, const char * const * argv)
 #endif
 
 //*****************************************************************************
-void sigint (void)
+void sigint(void* user_handle)
 {
-	print ("^C catched!\n\r");
+	print(user_handle,"^C catched!\n\r");
 }

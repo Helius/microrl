@@ -57,7 +57,7 @@ a) Include microrl.h file to you project.
 b) Create 'microrl_t' object, and call 'microrl_init' func, with print callback pointer. Print callback pointer is pointer to function that call by library if it's need to put text to terminal. Text string always is null terminated.
 For example on linux PC print callback may be:
 	// print callback for microrl library
-	void print (char * str)
+	void print(void* user_handle, char* str)
 	{
 		fprintf (stdout, "%s", str);
 	}
@@ -78,18 +78,20 @@ Example of code:
 		// create microrl object and pointer on it
 		microrl_t rl;
 		microrl_t * prl = &rl;
+		// User init
+		init(usr_handle);
 		// call init with ptr to microrl instance and print callback
-		microrl_init (prl, print);
+		microrl_init(prl, usr_handle, print);
 		// set callback for execute
-		microrl_set_execute_callback (prl, execute);
+		microrl_set_execute_callback(prl, execute);
 		// set callback for completion (optionally)
-		microrl_set_complete_callback (prl, complet);
+		microrl_set_complete_callback(prl, complet);
 		// set callback for ctrl+c handling (optionally)
-		microrl_set_sigint_callback (prl, sigint);
+		microrl_set_sigint_callback(prl, sigint);
 		
 		while (1) {
 			// put received char from stdin to microrl lib
-			char ch = get_char ();
+			char ch = get_char(usr_handle);
 			microrl_insert_char (prl, ch);
 		}
 		return 0;
@@ -101,3 +103,5 @@ See examples library usage.
 
 Author: Eugene Samoylov aka Helius (ghelius@gmail.com) 
 01.09.2011
+Modifications for multiple instance (added user_handle) Benjamin Vernoux (bvernoux@gmail.com)
+
