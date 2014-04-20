@@ -8,21 +8,24 @@
 
 //*****************************************************************************
 //dummy function, no need on linux-PC
-void init (void){
-};
+void init(void* user_handle)
+{
+	(void)user_handle; /* Not used in this example */
+}
 
 //*****************************************************************************
 // print callback for microrl library
-void print (const char * str)
+void print(void* user_handle, const char * str)
 {
-	fprintf (stdout, "%s", str);
+	(void)user_handle; /* Not used in this example */
+	fprintf(stdout, "%s", str);
 }
-
 
 //*****************************************************************************
 // get char user pressed, no waiting Enter input
-char get_char (void)
+char get_char(void* user_handle)
 {
+	(void)user_handle; /* Not used in this example */
 	struct termios oldt, newt;
 	int ch;
 	tcgetattr( STDIN_FILENO, &oldt );
@@ -64,66 +67,67 @@ int val;
 
 
 //*****************************************************************************
-void print_help ()
+void print_help(void* user_handle)
 {
-	print ("Use TAB key for completion\n\rCommand:\n\r");
-	print ("\tversion {microrl | demo} - print version of microrl lib or version of this demo src\n\r");
-	print ("\thelp  - this message\n\r");
-	print ("\tclear - clear screen\n\r");
-	print ("\tlist  - list all commands in tree\n\r");
-	print ("\tname [string] - print 'name' value if no 'string', set name value to 'string' if 'string' present\n\r");
-	print ("\tlisp - dummy command for demonstation auto-completion, while inputed 'l+<TAB>'\n\r");
+	print(user_handle, "Use TAB key for completion\n\rCommand:\n\r");
+	print(user_handle, "\tversion {microrl | demo} - print version of microrl lib or version of this demo src\n\r");
+	print(user_handle, "\thelp  - this message\n\r");
+	print(user_handle, "\tclear - clear screen\n\r");
+	print(user_handle, "\tlist  - list all commands in tree\n\r");
+	print(user_handle, "\tname [string] - print 'name' value if no 'string', set name value to 'string' if 'string' present\n\r");
+	print(user_handle, "\tlisp - dummy command for demonstation auto-completion, while inputed 'l+<TAB>'\n\r");
 }
 
 //*****************************************************************************
 // execute callback for microrl library
 // do what you want here, but don't write to argv!!! read only!!
-int execute (int argc, const char * const * argv)
+int execute(void* user_handle, int argc, const char* const* argv)
 {
+	(void)user_handle; /* Not used in this example */
 	int i = 0;
 	// just iterate through argv word and compare it with your commands
-	while (i < argc) {
-		if (strcmp (argv[i], _CMD_HELP) == 0) {
-			print ("microrl library based shell v 1.0\n\r");
-			print_help ();        // print help
-		} else if (strcmp (argv[i], _CMD_NAME) == 0) {
-			if ((++i) < argc) { // if value preset
-				if (strlen (argv[i]) < _NAME_LEN) {
-					strcpy (name, argv[i]);
+	while(i < argc) {
+		if(strcmp(argv[i], _CMD_HELP) == 0) {
+			print(user_handle, "microrl library based shell v 1.0\n\r");
+			print_help(user_handle);        // print help
+		} else if(strcmp(argv[i], _CMD_NAME) == 0) {
+			if((++i) < argc) { // if value preset
+				if(strlen(argv[i]) < _NAME_LEN) {
+					strcpy(name, argv[i]);
 				} else {
-					print ("name value too long!\n\r");
+					print(user_handle, "name value too long!\n\r");
 				}
 			} else {
-				print (name);
-				print ("\n\r");
+				print(user_handle, name);
+				print(user_handle, "\n\r");
 			}
-		} else if (strcmp (argv[i], _CMD_VER) == 0) {
-			if (++i < argc) {
-				if (strcmp (argv[i], _SCMD_DEMO) == 0) {
-					print ("demo v 1.0\n\r");
-				} else if (strcmp (argv[i], _SCMD_MRL) == 0) {
-					print ("microrl v 1.2\n\r");
+		} else if(strcmp(argv[i], _CMD_VER) == 0) {
+			if(++i < argc) {
+				if(strcmp(argv[i], _SCMD_DEMO) == 0) {
+					print(user_handle, "demo v 1.0\n\r");
+				} else if(strcmp(argv[i], _SCMD_MRL) == 0) {
+					print(user_handle, "microrl v 1.2\n\r");
 				} else {
-					print ((char*)argv[i]);
-					print (" wrong argument, see help\n\r");
+					print(user_handle,(char*)argv[i]);
+					print(user_handle, " wrong argument, see help\n\r");
 				}
 			} else {
-				print ("version needs 1 parametr, see help\n\r");
+				print(user_handle, "version needs 1 parametr, see help\n\r");
 			}
-		} else if (strcmp (argv[i], _CMD_CLEAR) == 0) {
-			print ("\033[2J");    // ESC seq for clear entire screen
-			print ("\033[H");     // ESC seq for move cursor at left-top corner
-		} else if (strcmp (argv[i], _CMD_LIST) == 0) {
-			print ("available command:\n");// print all command per line
-			for (int i = 0; i < _NUM_OF_CMD; i++) {
-				print ("\t");
-				print (keyworld[i]);
-				print ("\n\r");
+		} else if(strcmp(argv[i], _CMD_CLEAR) == 0) {
+			print(user_handle, "\033[2J");    // ESC seq for clear entire screen
+			print(user_handle, "\033[H");     // ESC seq for move cursor at left-top corner
+		} else if(strcmp(argv[i], _CMD_LIST) == 0) {
+			print(user_handle, "available command:\n");// print all command per line
+			for(int i = 0; i < _NUM_OF_CMD; i++) {
+				print(user_handle, "\t");
+				print(user_handle, keyworld[i]);
+				print(user_handle, "\n\r");
 			}
 		} else {
-			print ("command: '");
-			print ((char*)argv[i]);
-			print ("' Not found.\n\r");
+			print(user_handle, "command: '");
+			print(user_handle,(char*)argv[i]);
+			print(user_handle, "' Not found.\n\r");
 		}
 		i++;
 	}
@@ -133,33 +137,34 @@ int execute (int argc, const char * const * argv)
 #ifdef _USE_COMPLETE
 //*****************************************************************************
 // completion callback for microrl library
-char ** complet (int argc, const char * const * argv)
+char** complet(void* user_handle, int argc, const char* const* argv)
 {
+	(void)user_handle; /* Not used in this example */
 	int j = 0;
 
 	compl_world [0] = NULL;
 
 	// if there is token in cmdline
-	if (argc == 1) {
+	if(argc == 1) {
 		// get last entered token
-		char * bit = (char*)argv [argc-1];
+		char * bit =(char*)argv [argc-1];
 		// iterate through our available token and match it
-		for (int i = 0; i < _NUM_OF_CMD; i++) {
-			// if token is matched (text is part of our token starting from 0 char)
-			if (strstr(keyworld [i], bit) == keyworld [i]) {
+		for(int i = 0; i < _NUM_OF_CMD; i++) {
+			// if token is matched(text is part of our token starting from 0 char)
+			if(strstr(keyworld [i], bit) == keyworld [i]) {
 				// add it to completion set
 				compl_world [j++] = keyworld [i];
 			}
 		}
-	}	else if ((argc > 1) && (strcmp (argv[0], _CMD_VER)==0)) { // if command needs subcommands
+	}	else if((argc > 1) &&(strcmp(argv[0], _CMD_VER)==0)) { // if command needs subcommands
 		// iterate through subcommand for command _CMD_VER array
-		for (int i = 0; i < _NUM_OF_VER_SCMD; i++) {
-			if (strstr (ver_keyworld [i], argv [argc-1]) == ver_keyworld [i]) {
+		for(int i = 0; i < _NUM_OF_VER_SCMD; i++) {
+			if(strstr(ver_keyworld [i], argv [argc-1]) == ver_keyworld [i]) {
 				compl_world [j++] = ver_keyworld [i];
 			}
 		}
 	} else { // if there is no token in cmdline, just print all available token
-		for (; j < _NUM_OF_CMD; j++) {
+		for(; j < _NUM_OF_CMD; j++) {
 			compl_world[j] = keyworld [j];
 		}
 	}
@@ -172,7 +177,7 @@ char ** complet (int argc, const char * const * argv)
 #endif
 
 //*****************************************************************************
-void sigint (void)
+void sigint(void* user_handle)
 {
-	print ("^C catched!\n\r");
+	print(user_handle, "^C catched!\n\r");
 }
