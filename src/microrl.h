@@ -63,6 +63,12 @@ typedef struct {
 } ring_history_t;
 #endif
 
+// Function pointer
+typedef unsigned int (*ptExecFunc)(void* user_handle, int argc, const char* const* argv );
+typedef char** (*ptGetCompletionFunc)(void* user_handle, int argc, const char* const* argv );
+typedef void (*ptPrintFunc)(void* user_handle, const char* str);
+typedef void (*ptSigintFunc)(void* user_handle);
+
 // microrl struct, contain internal library data
 typedef struct {
 	void* user_handle;
@@ -80,16 +86,16 @@ typedef struct {
 	char cmdline [_COMMAND_LINE_LEN];  // cmdline buffer
 	int cmdlen;                        // last position in command line
 	int cursor;                        // input cursor
-	int (*execute)(void*, int argc, const char * const * argv ); // ptr to 'execute' callback
-	char** (*get_completion)(void*, int argc, const char * const * argv ); // ptr to 'completion' callback
-	void (*print)(void*, const char *); // ptr to 'print' callback
+	ptExecFunc execute; // ptr to 'execute' callback
+	ptGetCompletionFunc get_completion; // ptr to 'completion' callback
+	ptPrintFunc print; // ptr to 'print' callback
 #ifdef _USE_CTLR_C
-	void (*sigint)(void*);
+	ptSigintFunc sigint; // ptr to 'sigint' callback
 #endif
 } microrl_t;
 
 // init internal data, calls once at start up
-void microrl_init(microrl_t* pThis, void* user_handle, void (*print)(void* user_handle, const char*));
+void microrl_init(microrl_t* pThis, void* user_handle, ptPrintFunc print);
 
 // set prompt.
 void microrl_set_prompt(microrl_t* pThis, const char* prompt);
@@ -104,15 +110,15 @@ void microrl_set_echo(int);
 //   must return NULL-terminated string, contain complite variant splitted by 'Whitespace'
 //   If complite token found, it's must contain only one token to be complitted
 //   Empty string if complite not found, and multiple string if there are some token
-void microrl_set_complete_callback(microrl_t* pThis, char** (*get_completion)(void* user_handle, int, const char* const*));
+void microrl_set_complete_callback(microrl_t* pThis, ptGetCompletionFunc get_completion);
 
 // pointer to callback func, that called when user press 'Enter'
 // execute func param: argc - argument count, argv - pointer array to token string
-void microrl_set_execute_callback(microrl_t* pThis, int (*execute)(void* user_handle, int, const char* const*));
+void microrl_set_execute_callback(microrl_t* pThis, ptExecFunc execute);
 
 // set callback for Ctrl+C terminal signal
 #ifdef _USE_CTLR_C
-void microrl_set_sigint_callback(microrl_t* pThis, void (*sigintf)(void* user_handle));
+void microrl_set_sigint_callback(microrl_t* pThis, ptSigintFunc sigintf);
 #endif
 
 // insert char to cmdline (for example call in usart RX interrupt)

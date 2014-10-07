@@ -26,20 +26,13 @@ Token is word separate by white space, for example 3 token line:
 
 #define _PROMPT_TXT ">"
 
-// Prompt green color
+// Prompt START & END for green color (included automatically)
 #define _PROMPT_START "\033[32m"
 #define _PROMPT_END "\033[0m"
 /*
 Define you prompt string here. You can use colors escape code, for highlight you prompt,
 for example this prompt will green color (if you terminal supports color)*/
-//#define _PROMPT_DEFAUTL "\033[32mIRin >\033[0m "	// green color
-#define _PROMPT_DEFAUTL _PROMPT_START _PROMPT_TXT _PROMPT_END	// green color
-//#define _PROMPT_DEFAUTL "IRin > "
-
-/*
-Define prompt text (without ESC sequence, only text) prompt length, it needs because if you use
-ESC sequence, it's not possible detect only text length*/
-#define _PROMPT_LEN       (sizeof(_PROMPT_TXT)-1)
+#define _PROMPT_DEFAUTL _PROMPT_TXT	// shall not include _PROMPT_START & _PROMPT_END
 
 /*Define it, if you wanna use completion functional, also set completion callback in you code,
 now if user press TAB calls 'copmlitetion' callback. If you no need it, you can just set 
