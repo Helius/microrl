@@ -1,11 +1,12 @@
 /*
 Microrl library config files
 Autor: Eugene Samoylov aka Helius (ghelius@gmail.com)
+Modified configuration for HydraBus/HydraNFC (bvernoux@hydrabus.com)
 */
 #ifndef _MICRORL_CONFIG_H_
 #define _MICRORL_CONFIG_H_
 
-#define MICRORL_LIB_VER "1.5.1"
+#define MICRORL_LIB_VER "1.5.2"
 
 /*********** CONFIG SECTION **************/
 /*
@@ -13,7 +14,7 @@ Command line length, define cmdline buffer size. Set max number of chars + 1,
 because last byte of buffer need to contain '\0' - NULL terminator, and 
 not use for storing inputed char.
 If user input chars more then it parametrs-1, chars not added to command line.*/
-#define _COMMAND_LINE_LEN (1+100)									// for 32 chars
+#define _COMMAND_LINE_LEN (1+100) // for 32 chars
 
 /*
 Command token number, define max token in command line, if number of token 
@@ -22,7 +23,7 @@ command line not to be parced and 'execute' callback will not calls.
 Token is word separate by white space, for example 3 token line:
 "> set mode test"
 */
-#define _COMMAND_TOKEN_NMB 8
+#define _COMMAND_TOKEN_NMB 50
 
 #define _PROMPT_TXT ">"
 
@@ -31,8 +32,9 @@ Token is word separate by white space, for example 3 token line:
 #define _PROMPT_END "\033[0m"
 /*
 Define you prompt string here. You can use colors escape code, for highlight you prompt,
-for example this prompt will green color (if you terminal supports color)*/
-#define _PROMPT_DEFAUTL _PROMPT_TXT	// shall not include _PROMPT_START & _PROMPT_END
+for example this prompt will green color (if you terminal supports color)
+*/
+#define _PROMPT_DEFAUTL _PROMPT_TXT	/* shall not include _PROMPT_START & _PROMPT_END */
 
 /*Define it, if you wanna use completion functional, also set completion callback in you code,
 now if user press TAB calls 'copmlitetion' callback. If you no need it, you can just set 
@@ -42,7 +44,7 @@ if you are not going to use it - disable this define.*/
 
 /*Define it, if you wanna use history. It s work's like bash history, and
 set stored value to cmdline, if UP and DOWN key pressed. Using history add
-memory consuming, depends from _RING_HISTORY_LEN parametr */
+memory consuming, depends from _RING_HISTORY_LEN parameter */
 #define _USE_HISTORY
 
 /*
@@ -96,7 +98,6 @@ New line symbol */
 #endif
 
 /********** END CONFIG SECTION ************/
-
 
 #if _RING_HISTORY_LEN > 256
 #error "This history implementation (ring buffer with 1 byte iterator) allow 256 byte buffer size maximum"
