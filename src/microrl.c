@@ -234,7 +234,15 @@ static int split(microrl_t* pThis, int limit, char const** tkn_arr)
 //*****************************************************************************
 inline static void print_prompt(microrl_t* pThis)
 {
+	pThis->print(pThis->user_handle, _PROMPT_START);
 	pThis->print(pThis->user_handle, pThis->prompt_str);
+	pThis->print(pThis->user_handle, _PROMPT_END);
+}
+
+//*****************************************************************************
+inline static int get_prompt_len(microrl_t* pThis)
+{
+	return strlen(pThis->prompt_str);
 }
 
 //*****************************************************************************
@@ -307,16 +315,19 @@ static void terminal_move_cursor(microrl_t* pThis, int offset)
 static void terminal_reset_cursor(microrl_t* pThis)
 {
 	char str[16];
+	int len;
+
+	len = get_prompt_len(pThis);
 #ifdef _USE_LIBC_STDIO
 	snprintf(str, 16, "\033[%dD\033[%dC", \
-	_COMMAND_LINE_LEN + _PROMPT_LEN + 2, _PROMPT_LEN);
+	_COMMAND_LINE_LEN + len + 2, len);
 
 #else
 	char *endstr;
 	strcpy(str, "\033[");
-	endstr = u16bit_to_str( _COMMAND_LINE_LEN + _PROMPT_LEN + 2,str+2);
+	endstr = u16bit_to_str( _COMMAND_LINE_LEN + len + 2,str+2);
 	strcpy(endstr, "D\033["); endstr += 3;
-	endstr = u16bit_to_str(_PROMPT_LEN, endstr);
+	endstr = u16bit_to_str(len, endstr);
 	strcpy(endstr, "C");
 #endif
 	pThis->print(pThis->user_handle,str);
@@ -343,7 +354,7 @@ static void terminal_print_line(microrl_t* pThis, int pos, int cursor)
 }
 
 //*****************************************************************************
-void microrl_init(microrl_t* pThis, void* user_handle, void(*print)(void* user_handle, const char *)) 
+void microrl_init(microrl_t* pThis, void* user_handle, ptPrintFunc print) 
 {
 	pThis->user_handle = user_handle;
 	memset(pThis->cmdline, 0, _COMMAND_LINE_LEN);
@@ -374,19 +385,19 @@ void microrl_set_prompt(microrl_t* pThis, const char* prompt)
 }
 
 //*****************************************************************************
-void microrl_set_complete_callback(microrl_t* pThis, char **(*get_completion)(void* user_handle, int, const char* const*))
+void microrl_set_complete_callback(microrl_t* pThis, ptGetCompletionFunc get_completion)
 {
 	pThis->get_completion = get_completion;
 }
 
 //*****************************************************************************
-void microrl_set_execute_callback(microrl_t* pThis, int(*execute)(void* user_handle, int, const char* const*))
+void microrl_set_execute_callback(microrl_t* pThis, ptExecFunc execute)
 {
 	pThis->execute = execute;
 }
 #ifdef _USE_CTLR_C
 //*****************************************************************************
-void microrl_set_sigint_callback(microrl_t* pThis, void(*sigintf)(void* user_handle))
+void microrl_set_sigint_callback(microrl_t* pThis, ptSigintFunc sigintf)
 {
 	pThis->sigint = sigintf;
 }
