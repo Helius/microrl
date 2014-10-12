@@ -197,38 +197,33 @@ static int hist_restore_line(ring_history_t * pThis, char * line, int dir)
 #endif
 
 //*****************************************************************************
-// split cmdline to tkn array and return nmb of token
-static int split(microrl_t* pThis, int limit, char const** tkn_arr)
+// Split command line to token array and return number of tokens.
+// The command line is already split by \0 instead of whitespace.
+static int split(microrl_t *pThis, int limit, char const **tkn_arr)
 {
-	int i = 0;
-	int ind = 0;
-	while(1)
-	{
-		// go to the first whitespace(zerro for us)
-		while((pThis->cmdline[ind] == '\0') && (ind < limit))
-		{
+	int num_tokens;
+	int ind;
+
+	num_tokens = ind = 0;
+	while (1) {
+		// go to the first whitespace (zero for us)
+		while (pThis->cmdline[ind] == '\0' && ind < limit)
 			ind++;
-		}
-		if(!(ind < limit))
-		{
-			return i;
-		}
-		tkn_arr[i++] = pThis->cmdline + ind;
-		if(i >= _COMMAND_TOKEN_NMB)
-		{
+		if (ind >= limit)
+			return num_tokens;
+
+		tkn_arr[num_tokens++] = pThis->cmdline + ind;
+		if (num_tokens > _MAX_COMMAND_TOKENS)
 			return -1;
-		}
-		// go to the first NOT whitespace(not zerro for us)
-		while((pThis->cmdline [ind] != '\0') &&(ind < limit))
-		{
+
+		// go to the first non-whitespace (not zero for us)
+		while (pThis->cmdline[ind] != '\0' && ind < limit)
 			ind++;
-		}
-		if(!(ind < limit))
-		{
-			return i;
-		}
+		if (ind >= limit)
+			return num_tokens;
 	}
-	return i;
+
+	return num_tokens;
 }
 
 //*****************************************************************************
@@ -334,10 +329,10 @@ static void terminal_reset_cursor(microrl_t* pThis)
 }
 
 //*****************************************************************************
-// print cmdline to screen, replace '\0' to whitespace 
+// print cmdline to screen, replace '\0' with whitespace 
 static void terminal_print_line(microrl_t* pThis, int pos, int cursor)
 {
-	pThis->print(pThis->user_handle,"\033[K");    // delete all from cursor to end
+	pThis->print(pThis->user_handle,"\033[K"); // delete all from cursor to end
 
 	char nch[2] = {0,0};
 	int i;
@@ -368,7 +363,7 @@ void microrl_init(microrl_t* pThis, void* user_handle, ptPrintFunc print)
 	pThis->cursor = 0;
 	pThis->execute = NULL;
 	pThis->get_completion = NULL;
-#ifdef _USE_CTLR_C
+#ifdef _USE_CTRL_C
 	pThis->sigint = NULL;
 #endif
 	pThis->prompt_str = prompt_default;
@@ -395,7 +390,7 @@ void microrl_set_execute_callback(microrl_t* pThis, ptExecFunc execute)
 {
 	pThis->execute = execute;
 }
-#ifdef _USE_CTLR_C
+#ifdef _USE_CTRL_C
 //*****************************************************************************
 void microrl_set_sigint_callback(microrl_t* pThis, ptSigintFunc sigintf)
 {
@@ -547,9 +542,9 @@ static int common_len(char** arr)
 }
 
 //*****************************************************************************
-static void microrl_get_complite(microrl_t* pThis) 
+static void microrl_get_complete(microrl_t* pThis)
 {
-	char const* tkn_arr[_COMMAND_TOKEN_NMB];
+	char const* tkn_arr[_MAX_COMMAND_TOKENS];
 	char** compl_token; 
 	int status;
 
@@ -599,22 +594,19 @@ static void microrl_get_complite(microrl_t* pThis)
 //*****************************************************************************
 void new_line_handler(microrl_t* pThis)
 {
-	char const* tkn_arr[_COMMAND_TOKEN_NMB];
-	int status;
+	char const* tkn_arr[_MAX_COMMAND_TOKENS];
+	int num_tokens;
 
 	terminal_newline(pThis);
 #ifdef _USE_HISTORY
 	if(pThis->cmdlen > 0)
 		hist_save_line(&pThis->ring_hist, pThis->cmdline, pThis->cmdlen);
 #endif
-	status = split(pThis, pThis->cmdlen, tkn_arr);
-	if(status == -1)
-	{
-		pThis->print(pThis->user_handle,"ERROR:too many tokens");
-		pThis->print(pThis->user_handle,ENDL);
-	}
-	if( (status > 0) && (pThis->execute != NULL) )
-		pThis->execute(pThis->user_handle, status, tkn_arr);
+	num_tokens = split(pThis, pThis->cmdlen, tkn_arr);
+	if (num_tokens == -1)
+		pThis->print(pThis->user_handle, "Error: too many tokens." ENDL);
+	else if (num_tokens > 0 && pThis->execute != NULL)
+		pThis->execute(pThis->user_handle, num_tokens, tkn_arr);
 	print_prompt(pThis);
 	pThis->cmdlen = 0;
 	pThis->cursor = 0;
@@ -670,7 +662,7 @@ void microrl_insert_char(microrl_t* pThis, int ch)
 			//-----------------------------------------------------
 #ifdef _USE_COMPLETE
 		case KEY_HT:
-			microrl_get_complite(pThis);
+			microrl_get_complete(pThis);
 			break;
 #endif
 			//-----------------------------------------------------
@@ -691,6 +683,7 @@ void microrl_insert_char(microrl_t* pThis, int ch)
 		case KEY_VT:  // ^K
 			pThis->print(pThis->user_handle,"\033[K");
 			pThis->cmdlen = pThis->cursor;
+			pThis->cmdline[pThis->cmdlen] = '\0';
 			break;
 			//-----------------------------------------------------
 		case KEY_ENQ: // ^E
@@ -736,7 +729,7 @@ void microrl_insert_char(microrl_t* pThis, int ch)
 			microrl_backspace(pThis);
 			terminal_print_line(pThis, pThis->cursor, pThis->cursor);
 			break;
-#ifdef _USE_CTLR_C
+#ifdef _USE_CTRL_C
 		case KEY_ETX:
 			if(pThis->sigint != NULL)
 				pThis->sigint(pThis->user_handle);
