@@ -89,7 +89,7 @@ typedef struct {
 	ptExecFunc execute; // ptr to 'execute' callback
 	ptGetCompletionFunc get_completion; // ptr to 'completion' callback
 	ptPrintFunc print; // ptr to 'print' callback
-#ifdef _USE_CTLR_C
+#ifdef _USE_CTRL_C
 	ptSigintFunc sigint; // ptr to 'sigint' callback
 #endif
 } microrl_t;
@@ -117,7 +117,7 @@ void microrl_set_complete_callback(microrl_t* pThis, ptGetCompletionFunc get_com
 void microrl_set_execute_callback(microrl_t* pThis, ptExecFunc execute);
 
 // set callback for Ctrl+C terminal signal
-#ifdef _USE_CTLR_C
+#ifdef _USE_CTRL_C
 void microrl_set_sigint_callback(microrl_t* pThis, ptSigintFunc sigintf);
 #endif
 
