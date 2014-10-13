@@ -3,8 +3,12 @@
 
 #include "microrl_config.h"
 
-#define true  1
-#define false 0
+#ifndef TRUE
+#define TRUE 1
+#endif
+#ifndef FALSE
+#define FALSE 0
+#endif
 
  /* define the Key codes */
 #define KEY_NUL 0 /**< ^@ Null character */
@@ -48,9 +52,11 @@
 #define _HIST_UP   0
 #define _HIST_DOWN 1
 // esc seq internal codes
-#define _ESC_BRACKET  1
-#define _ESC_HOME     2
-#define _ESC_END      3
+enum {
+	_ESC_BRACKET = 1,
+	_ESC_HOME,
+	_ESC_END,
+};
 
 #ifdef _USE_HISTORY
 // history struct, contain internal variable
