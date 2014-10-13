@@ -439,6 +439,18 @@ static int escape_process(microrl_t *pThis, char ch)
 				pThis->cursor--;
 			}
 			break;
+		case '1':
+			/* Home key */
+			terminal_reset_cursor(pThis);
+			pThis->cursor = 0;
+			finished = FALSE;
+			break;
+		case '4':
+			/* End key */
+			terminal_move_cursor(pThis, pThis->cmdlen-pThis->cursor);
+			pThis->cursor = pThis->cmdlen;
+			finished = FALSE;
+			break;
 		case '7':
 			/* Home key */
 			pThis->escape_seq = _ESC_HOME;
@@ -652,6 +664,12 @@ void microrl_insert_char(microrl_t *pThis, int ch)
 			pThis->print(pThis->user_handle,"\033[K");
 			pThis->cmdlen = pThis->cursor;
 			pThis->cmdline[pThis->cmdlen] = '\0';
+			break;
+		case KEY_FF: // ^L
+			pThis->print(pThis->user_handle,"\033[2J");
+			pThis->print(pThis->user_handle,"\033[H");
+			print_prompt(pThis);
+			terminal_print_line(pThis, 0, pThis->cursor);
 			break;
 		case KEY_ENQ: // ^E
 			terminal_move_cursor(pThis, pThis->cmdlen-pThis->cursor);
