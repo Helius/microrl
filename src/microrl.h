@@ -52,11 +52,7 @@
 #define _HIST_UP   0
 #define _HIST_DOWN 1
 // esc seq internal codes
-enum {
-	_ESC_BRACKET = 1,
-	_ESC_HOME,
-	_ESC_END,
-};
+#define _ESC_BRACKET 1
 
 #ifdef _USE_HISTORY
 // history struct, contain internal variable

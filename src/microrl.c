@@ -439,10 +439,26 @@ static int escape_process(microrl_t *pThis, char ch)
 				pThis->cursor--;
 			}
 			break;
+		/*
+		 * Following escape sequences end with ~ so set
+		 * delay finished flag to swallow that one too.
+		 */
 		case '1':
 			/* Home key */
 			terminal_reset_cursor(pThis);
 			pThis->cursor = 0;
+			finished = FALSE;
+			break;
+		case '3':
+			/* Delete key */
+			if (pThis->cursor < pThis->cmdlen) {
+				memmove(pThis->cmdline + pThis->cursor,
+				pThis->cmdline + pThis->cursor + 1,
+				pThis->cmdlen - pThis->cursor - 1);
+				pThis->cmdlen--;
+				pThis->cmdline[pThis->cmdlen] = '\0';
+				terminal_print_line(pThis, pThis->cursor, pThis->cursor);
+			}
 			finished = FALSE;
 			break;
 		case '4':
@@ -451,24 +467,6 @@ static int escape_process(microrl_t *pThis, char ch)
 			pThis->cursor = pThis->cmdlen;
 			finished = FALSE;
 			break;
-		case '7':
-			/* Home key */
-			pThis->escape_seq = _ESC_HOME;
-			finished = FALSE;
-			break;
-		case '8':
-			/* End key */
-			pThis->escape_seq = _ESC_END;
-			finished = FALSE;
-			break;
-		}
-	} else if (ch == '~') {
-		if (pThis->escape_seq == _ESC_HOME) {
-			terminal_reset_cursor(pThis);
-			pThis->cursor = 0;
-		} else if (pThis->escape_seq == _ESC_END) {
-			terminal_move_cursor(pThis, pThis->cmdlen-pThis->cursor);
-			pThis->cursor = pThis->cmdlen;
 		}
 	}
 
@@ -716,7 +714,7 @@ void microrl_insert_char(microrl_t *pThis, int ch)
 			if ((ch == ' ' && pThis->cmdlen == 0) || IS_CONTROL_CHAR(ch))
 				break;
 			if (microrl_insert_text(pThis, (char*)&ch, 1))
-				terminal_print_line(pThis, pThis->cursor-1, pThis->cursor);
+				terminal_print_line(pThis, pThis->cursor - 1, pThis->cursor);
 			break;
 		}
 #ifdef _USE_ESC_SEQ
