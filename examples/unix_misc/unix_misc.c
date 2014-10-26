@@ -4,7 +4,7 @@
 #include <sys/ioctl.h>
 #include <unistd.h> 
 #include <string.h>
-#include "../../src/config.h"
+#include "../../src/microrl.h"
 
 //*****************************************************************************
 //dummy function, no need on linux-PC

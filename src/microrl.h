@@ -1,7 +1,9 @@
 #ifndef _MICRORL_H_
 #define _MICRORL_H_
 
-#include "config.h"
+#include "microrl_config.h"
+
+#define MICRORL_LIB_VER "1.5.1"
 
 #define true  1
 #define false 0
