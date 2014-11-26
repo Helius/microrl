@@ -84,7 +84,7 @@ typedef struct {
 #ifdef _USE_HISTORY
 	ring_history_t ring_hist;          // history object
 #endif
-	char* prompt_str;                  // pointer to prompt string
+	const char* prompt_str;            // pointer to prompt string
 	char cmdline [_COMMAND_LINE_LEN];  // cmdline buffer
 	int cmdlen;                        // last position in command line
 	int cursor;                        // input cursor
@@ -96,6 +96,9 @@ typedef struct {
 #endif
 } microrl_t;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 // init internal data, calls once at start up
 void microrl_init(microrl_t* pThis, void* user_handle, ptPrintFunc print);
 
@@ -125,5 +128,8 @@ void microrl_set_sigint_callback(microrl_t* pThis, ptSigintFunc sigintf);
 
 // insert char to cmdline (for example call in usart RX interrupt)
 void microrl_insert_char (microrl_t* pThis, int ch);
+#ifdef __cplusplus
+}
+#endif
 
 #endif
