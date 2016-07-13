@@ -329,7 +329,7 @@ void microrl_init (microrl_t * pThis, void (*print) (const char *))
 	pThis->cursor = 0;
 	pThis->execute = NULL;
 	pThis->get_completion = NULL;
-#ifdef _USE_CTLR_C
+#ifdef _USE_CTRL_C
 	pThis->sigint = NULL;
 #endif
 	pThis->prompt_str = prompt_default;
@@ -350,7 +350,7 @@ void microrl_set_execute_callback (microrl_t * pThis, int (*execute)(int, const 
 {
 	pThis->execute = execute;
 }
-#ifdef _USE_CTLR_C
+#ifdef _USE_CTRL_C
 //*****************************************************************************
 void microrl_set_sigint_callback (microrl_t * pThis, void (*sigintf)(void))
 {
@@ -663,7 +663,7 @@ void microrl_insert_char (microrl_t * pThis, int ch)
 				microrl_backspace (pThis);
 				terminal_print_line (pThis, pThis->cursor, pThis->cursor);
 			break;
-#ifdef _USE_CTLR_C
+#ifdef _USE_CTRL_C
 			case KEY_ETX:
 			if (pThis->sigint != NULL)
 				pThis->sigint();
