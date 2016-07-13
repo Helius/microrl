@@ -3,7 +3,7 @@ MCU       = atmega8
 #DEBUG     = -g
 TARGET    = microrl_test
 
-CCFLAGS   = -mmcu=$(MCU) -Wall $(DEBUG) -std=gnu99 -Os -ffunction-sections -Wa,-adhlns=$(<:.c=.lst)
+CCFLAGS   = -mmcu=$(MCU) -Wall $(DEBUG) -std=gnu99 -Os -ffunction-sections -Wa,-adhlns=$(<:.c=.lst) -I../src -iquote avr_misc
 LDFLAGS   = -Wl,-Map,$(TARGET).map,--gc-sections -mmcu=$(MCU)
 
 all: $(TARGET).elf
