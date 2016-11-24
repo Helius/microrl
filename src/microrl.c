@@ -316,22 +316,16 @@ static void terminal_print_line (microrl_t * pThis, int pos, int cursor)
 }
 
 //*****************************************************************************
-void microrl_init (microrl_t * pThis, void (*print) (const char *)) 
+void microrl_init (microrl_t * pThis, char cmdline_buffer[_COMMAND_LINE_LEN],
+		ring_history_t *history, void (*print)(const char*))
 {
-	memset(pThis->cmdline, 0, _COMMAND_LINE_LEN);
-#ifdef _USE_HISTORY
-	memset(pThis->ring_hist.ring_buf, 0, _RING_HISTORY_LEN);
-	pThis->ring_hist.begin = 0;
-	pThis->ring_hist.end = 0;
-	pThis->ring_hist.cur = 0;
-#endif
-	pThis->cmdlen =0;
-	pThis->cursor = 0;
-	pThis->execute = NULL;
-	pThis->get_completion = NULL;
-#ifdef _USE_CTLR_C
-	pThis->sigint = NULL;
-#endif
+	memset(pThis, 0, sizeof(microrl_t));
+	memset(history, 0, sizeof(ring_history_t));
+	memset(cmdline_buffer, 0, _COMMAND_LINE_LEN);
+
+	pThis->cmdline = cmdline_buffer;
+	pThis->ring_hist = history;
+
 	pThis->prompt_str = prompt_default;
 	pThis->print = print;
 #ifdef _ENABLE_INIT_PROMPT
@@ -361,7 +355,7 @@ void microrl_set_sigint_callback (microrl_t * pThis, void (*sigintf)(void))
 #ifdef _USE_ESC_SEQ
 static void hist_search (microrl_t * pThis, int dir)
 {
-	int len = hist_restore_line (&pThis->ring_hist, pThis->cmdline, dir);
+	int len = hist_restore_line (pThis->ring_hist, pThis->cmdline, dir);
 	if (len >= 0) {
 		pThis->cursor = pThis->cmdlen = len;
 		terminal_reset_cursor (pThis);
@@ -537,13 +531,12 @@ void new_line_handler(microrl_t * pThis){
 	terminal_newline (pThis);
 #ifdef _USE_HISTORY
 	if (pThis->cmdlen > 0)
-		hist_save_line (&pThis->ring_hist, pThis->cmdline, pThis->cmdlen);
+		hist_save_line (pThis->ring_hist, pThis->cmdline, pThis->cmdlen);
 #endif
 	status = split (pThis, pThis->cmdlen, tkn_arr);
 	if (status == -1){
 		//          pThis->print ("ERROR: Max token amount exseed\n");
-		pThis->print ("ERROR:too many tokens");
-		pThis->print (ENDL);
+		pThis->print ("ERROR:too many tokens" ENDL);
 	}
 	if ((status > 0) && (pThis->execute != NULL))
 		pThis->execute (status, tkn_arr);
@@ -552,7 +545,7 @@ void new_line_handler(microrl_t * pThis){
 	pThis->cursor = 0;
 	memset(pThis->cmdline, 0, _COMMAND_LINE_LEN);
 #ifdef _USE_HISTORY
-	pThis->ring_hist.cur = 0;
+	pThis->ring_hist->cur = 0;
 #endif
 }
 

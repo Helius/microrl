@@ -56,10 +56,10 @@
 // history struct, contain internal variable
 // history store in static ring buffer for memory saving
 typedef struct {
-	char ring_buf [_RING_HISTORY_LEN];
 	int begin;
 	int end;
 	int cur;
+	char ring_buf [_RING_HISTORY_LEN];
 } ring_history_t;
 #endif
 
@@ -72,23 +72,24 @@ typedef struct {
 #if (defined(_ENDL_CRLF) || defined(_ENDL_LFCR))
 	char tmpch;
 #endif
-#ifdef _USE_HISTORY
-	ring_history_t ring_hist;          // history object
-#endif
-	char * prompt_str;                 // pointer to prompt string
-	char cmdline [_COMMAND_LINE_LEN];  // cmdline buffer
+	char *cmdline;                     // cmdline buffer
 	int cmdlen;                        // last position in command line
 	int cursor;                        // input cursor
+	void (*print) (const char *);                                     // ptr to 'print' callback
 	int (*execute) (int argc, const char * const * argv );            // ptr to 'execute' callback
 	char ** (*get_completion) (int argc, const char * const * argv ); // ptr to 'completion' callback
-	void (*print) (const char *);                                     // ptr to 'print' callback
 #ifdef _USE_CTLR_C
 	void (*sigint) (void);
+#endif
+	char * prompt_str;                 // pointer to prompt string
+#ifdef _USE_HISTORY
+	ring_history_t *ring_hist;          // history object
 #endif
 } microrl_t;
 
 // init internal data, calls once at start up
-void microrl_init (microrl_t * pThis, void (*print)(const char*));
+void microrl_init (microrl_t * pThis, char cmdline_buffer[_COMMAND_LINE_LEN],
+		ring_history_t *history, void (*print)(const char*));
 
 // set echo mode (true/false), using for disabling echo for password input
 // echo mode will enabled after user press Enter.
