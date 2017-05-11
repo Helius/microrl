@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-#include "../src/microrl.h"
+#include <microrl.h>
 #include "example_misc.h"
 
 // create microrl object and pointer on it

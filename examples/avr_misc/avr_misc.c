@@ -1,4 +1,4 @@
-#include "../../src/config.h"
+#include <microrl.h>
 #include <string.h>
 #include <stdlib.h>
 #include <avr/io.h>
