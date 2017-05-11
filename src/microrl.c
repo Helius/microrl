@@ -358,7 +358,7 @@ void microrl_set_sigint_callback (microrl_t * pThis, void (*sigintf)(void))
 }
 #endif
 
-#ifdef _USE_ESC_SEQ
+#ifdef _USE_HISTORY
 static void hist_search (microrl_t * pThis, int dir)
 {
 	int len = hist_restore_line (&pThis->ring_hist, pThis->cmdline, dir);
@@ -368,7 +368,9 @@ static void hist_search (microrl_t * pThis, int dir)
 		terminal_print_line (pThis, 0, pThis->cursor);
 	}
 }
+#endif
 
+#ifdef _USE_ESC_SEQ
 //*****************************************************************************
 // handling escape sequences
 static int escape_process (microrl_t * pThis, char ch)
