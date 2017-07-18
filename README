@@ -21,6 +21,7 @@ Microrl library is designed to help implement command line interface in small an
 	 - Ctrl+F (like cursor arrow right)
 	 - Ctrl+P (like cursor arrow up)
 	 - Ctrl+N (like cursor arrow down)
+	 - Ctrl+R (retype prompt and partial command)
 	 - Ctrl+C (call 'sigint' callback, only for embedded system)
 
 	** history
