@@ -1,7 +1,9 @@
 #ifndef _MICRORL_H_
 #define _MICRORL_H_
 
-#include "config.h"
+#include "microrl_config.h"
+
+#define MICRORL_LIB_VER "1.5.1"
 
 #define true  1
 #define false 0
@@ -69,9 +71,7 @@ typedef struct {
 	char escape_seq;
 	char escape;
 #endif
-#if (defined(_ENDL_CRLF) || defined(_ENDL_LFCR))
-	char tmpch;
-#endif
+	char last_endl;                    // either 0 or the CR or LF that just triggered a newline
 #ifdef _USE_HISTORY
 	ring_history_t ring_hist;          // history object
 #endif

@@ -363,6 +363,7 @@ static void hist_search (microrl_t * pThis, int dir)
 {
 	int len = hist_restore_line (&pThis->ring_hist, pThis->cmdline, dir);
 	if (len >= 0) {
+		pThis->cmdline[len] = '\0';
 		pThis->cursor = pThis->cmdlen = len;
 		terminal_reset_cursor (pThis);
 		terminal_print_line (pThis, 0, pThis->cursor);
@@ -568,37 +569,19 @@ void microrl_insert_char (microrl_t * pThis, int ch)
 			pThis->escape = 0;
 	} else {
 #endif
+		if (ch == KEY_CR || ch == KEY_LF) {
+			// Only trigger a newline if ch doen't follow its companion's
+			// triggering a newline.
+			if (pThis->last_endl == (ch == KEY_CR ? KEY_LF : KEY_CR)) {
+				pThis->last_endl = 0;      // ignore char, but clear newline state
+			} else {
+				pThis->last_endl = ch;
+				new_line_handler(pThis);
+			}
+			return;
+		}
+		pThis->last_endl = 0;
 		switch (ch) {
-			//-----------------------------------------------------
-#ifdef _ENDL_CR
-			case KEY_CR:
-				new_line_handler(pThis);
-			break;
-			case KEY_LF:
-			break;
-#elif defined(_ENDL_CRLF)
-			case KEY_CR:
-				pThis->tmpch = KEY_CR;
-			break;
-			case KEY_LF:
-			if (pThis->tmpch == KEY_CR)
-				new_line_handler(pThis);
-			break;
-#elif defined(_ENDL_LFCR)
-			case KEY_LF:
-				pThis->tmpch = KEY_LF;
-			break;
-			case KEY_CR:
-			if (pThis->tmpch == KEY_LF)
-				new_line_handler(pThis);
-			break;
-#else
-			case KEY_CR:
-			break;
-			case KEY_LF:
-				new_line_handler(pThis);
-			break;
-#endif
 			//-----------------------------------------------------
 #ifdef _USE_COMPLETE
 			case KEY_HT:
