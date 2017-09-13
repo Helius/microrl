@@ -211,6 +211,12 @@ static int split (microrl_t * pThis, int limit, char const ** tkn_arr)
 
 
 //*****************************************************************************
+void microrl_erase_prompt(microrl_t *pThis)
+{
+    pThis->print("\033[999D\033[2K");
+}
+
+//*****************************************************************************
 inline static void print_prompt (microrl_t * pThis)
 {
 	pThis->print (pThis->prompt_str);

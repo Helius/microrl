@@ -114,4 +114,10 @@ void microrl_set_sigint_callback (microrl_t * pThis, void (*sigintf)(void));
 // insert char to cmdline (for example call in usart RX interrupt)
 void microrl_insert_char (microrl_t * pThis, int ch);
 
+// clear the current line, possibly to print information for user
+void microrl_erase_prompt(microrl_t *pThis);
+
+// restore the previous prompt/line
+#define microrl_restore_prompt(pThis)  microrl_insert_char(pThis, KEY_DC2)
+
 #endif
