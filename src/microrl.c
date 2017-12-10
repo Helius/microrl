@@ -300,19 +300,23 @@ static void terminal_reset_cursor (microrl_t * pThis)
 // print cmdline to screen, replace '\0' to wihitespace 
 static void terminal_print_line (microrl_t * pThis, int pos, int cursor)
 {
-	pThis->print ("\033[K");    // delete all from cursor to end
+	if (!ECHO_IS_OFF()) {
+		pThis->print ("\033[K");    // delete all from cursor to end
 
-	char nch [] = {0,0};
-	int i;
-	for (i = pos; i < pThis->cmdlen; i++) {
-		nch [0] = pThis->cmdline [i];
-		if (nch[0] == '\0')
-			nch[0] = ' ';
-		pThis->print (nch);
+		char nch [] = {0,0};
+		int i;
+		for (i = pos; i < pThis->cmdlen; i++) {
+			nch [0] = pThis->cmdline [i];
+			if (nch[0] == '\0')
+				nch[0] = ' ';
+			if ((i >= pThis->start_password) & (ECHO_IS_ONCE()))
+				nch[0] = '*';
+			pThis->print (nch);
+		}
+		
+		terminal_reset_cursor (pThis);
+		terminal_move_cursor (pThis, cursor);
 	}
-	
-	terminal_reset_cursor (pThis);
-	terminal_move_cursor (pThis, cursor);
 }
 
 //*****************************************************************************
@@ -337,6 +341,8 @@ void microrl_init (microrl_t * pThis, void (*print) (const char *))
 #ifdef _ENABLE_INIT_PROMPT
 	print_prompt (pThis);
 #endif
+	pThis->echo = ON;
+	pThis->start_password = -1; //
 }
 
 //*****************************************************************************
@@ -432,6 +438,8 @@ static int microrl_insert_text (microrl_t * pThis, char * text, int len)
 {
 	int i;
 	if (pThis->cmdlen + len < _COMMAND_LINE_LEN) {
+		if (ECHO_IS_ONCE() & (pThis->start_password == -1))
+			pThis->start_password = pThis->cmdlen;
 		memmove (pThis->cmdline + pThis->cursor + len,
 						 pThis->cmdline + pThis->cursor,
 						 pThis->cmdlen - pThis->cursor);
@@ -537,6 +545,11 @@ void new_line_handler(microrl_t * pThis){
 	char const * tkn_arr [_COMMAND_TOKEN_NMB];
 	int status;
 
+	if (ECHO_IS_ONCE()){
+		microrl_set_echo(pThis, ON);
+		pThis->start_password = -1;
+	}
+		
 	terminal_newline (pThis);
 #ifdef _USE_HISTORY
 	if (pThis->cmdlen > 0)
@@ -692,4 +705,9 @@ void microrl_insert_char (microrl_t * pThis, int ch)
 #ifdef _USE_ESC_SEQ
 	}
 #endif
+}
+
+//*****************************************************************************
+void microrl_set_echo (microrl_t * pThis, echo_t echo) {
+	pThis->echo = echo;
 }
