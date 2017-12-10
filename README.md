@@ -30,20 +30,25 @@ Microrl library is designed to help implement command line interface in small an
 	** completion
 	 - via completion callback
 
+	** echo
+	 - use "microrl_set_echo" function to turn on or turn off echo.
+	 - could be used to print * insted of real characters.
+![Window of terminal with microrl library](https://s8.hostingkartinok.com/uploads/images/2017/12/62be1f601c0d64fcf142597c1610147d.png)  	 
 
 3. SRC STRUCTURE
 
-src/             - library source
-  microrl.c      - microrl routines
-  microrl.h      - lib interface and data type
-  config.h       - customisation config-file
-examples/        - library usage examples
-  avr_misc/      - avr specific routines for avr example
-  unix_misc/     - unix specific routines for desktop example
-  example.c      - common part of example, for build  demonstrating example for various platform
-  example_misc.h - interface to platform specific routines for example build (avr, unix)
-  Makefile       - unix example build (gcc)
-  Makefile.avr   - avr example build (avr-gcc)
+src/               - library source
+  microrl.c        - microrl routines
+  microrl.h        - lib interface and data type
+  config.h         - customisation config-file
+examples/          - library usage examples
+  avr_misc/        - avr specific routines for avr example
+  unix_misc/       - unix specific routines for desktop example
+  esp8266_example/ - example for esp8266 (platformio) - echo feature
+  example.c        - common part of example, for build  demonstrating example for various platform
+  example_misc.h   - interface to platform specific routines for example build (avr, unix)
+  Makefile         - unix example build (gcc)
+  Makefile.avr     - avr example build (avr-gcc)
 
 
 4. INSTALL

@@ -63,6 +63,17 @@ typedef struct {
 } ring_history_t;
 #endif
 
+typedef enum echo_ {
+	ONCE,
+	ON,
+	OFF
+} echo_t;
+
+#define ECHO_IS_ON()         ((pThis->echo) == (ON))
+#define ECHO_IS_OFF()        ((pThis->echo) == (OFF))
+#define ECHO_IS_ONCE()       ((pThis->echo) == (ONCE))
+
+
 // microrl struct, contain internal library data
 typedef struct {
 #ifdef _USE_ESC_SEQ
@@ -85,14 +96,18 @@ typedef struct {
 #ifdef _USE_CTLR_C
 	void (*sigint) (void);
 #endif
+	echo_t echo;
+	int start_password;  // position when start printing * 
 } microrl_t;
 
 // init internal data, calls once at start up
 void microrl_init (microrl_t * pThis, void (*print)(const char*));
 
-// set echo mode (true/false), using for disabling echo for password input
+// set echo mode (ON/OFF/ONCE), using for disabling echo for password input
+// using ONCE for disabling echo for password input, 
 // echo mode will enabled after user press Enter.
-void microrl_set_echo (int);
+// use ON and OFF for turning echo off and on manualy. 
+void microrl_set_echo (microrl_t * pThis, echo_t echo);
 
 // set pointer to callback complition func, that called when user press 'Tab'
 // callback func description:
