@@ -1,7 +1,6 @@
 /*
 Author: Samoylov Eugene aka Helius (ghelius@gmail.com)
 BUGS and TODO:
--- add echo_off feature
 -- rewrite history for use more than 256 byte buffer
 */
 
