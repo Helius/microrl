@@ -191,7 +191,7 @@ static int split (microrl_t * pThis, int limit, char const ** tkn_arr)
 	int i = 0;
 	int ind = 0;
 	while (1) {
-		// go to the first whitespace (zerro for us)
+		// go to the first NOT whitespace (zerro for us)
 		while ((pThis->cmdline [ind] == '\0') && (ind < limit)) {
 			ind++;
 		}
@@ -200,7 +200,7 @@ static int split (microrl_t * pThis, int limit, char const ** tkn_arr)
 		if (i >= _COMMAND_TOKEN_NMB) {
 			return -1;
 		}
-		// go to the first NOT whitespace (not zerro for us)
+		// go to the first whitespace (not zerro for us)
 		while ((pThis->cmdline [ind] != '\0') && (ind < limit)) {
 			ind++;
 		}
