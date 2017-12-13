@@ -63,6 +63,14 @@ typedef struct {
 } ring_history_t;
 #endif
 
+#ifdef _USE_QUOTING
+// quoted token struct, point to begin and end marks
+typedef struct {
+	char * begin;
+	char * end;
+} quoted_token_t;
+#endif
+
 // microrl struct, contain internal library data
 typedef struct {
 #ifdef _USE_ESC_SEQ
@@ -79,6 +87,9 @@ typedef struct {
 	char cmdline [_COMMAND_LINE_LEN];  // cmdline buffer
 	int cmdlen;                        // last position in command line
 	int cursor;                        // input cursor
+#ifdef _USE_QUOTING
+	quoted_token_t quotes[_QUOTED_TOKEN_NMB];// pointers to quoted tokens
+#endif
 	int (*execute) (int argc, const char * const * argv );            // ptr to 'execute' callback
 	char ** (*get_completion) (int argc, const char * const * argv ); // ptr to 'completion' callback
 	void (*print) (const char *);                                     // ptr to 'print' callback
