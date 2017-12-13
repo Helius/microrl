@@ -17,6 +17,7 @@ Microrl library is designed to help implement command line interface in small an
 	 - Ctrl+A (like HOME) 
 	 - Ctrl+E (like END)
 	 - Ctrl+H (like backspace)
+	 - Ctrl+D (delete one character forward)
 	 - Ctrl+B (like cursor arrow left) 
 	 - Ctrl+F (like cursor arrow right)
 	 - Ctrl+P (like cursor arrow up)
