@@ -509,6 +509,8 @@ static void microrl_get_complite (microrl_t * pThis)
 		return;
 
 	int status = split (pThis, pThis->cursor, tkn_arr);
+	if (status < 0)
+		return;
 	if (pThis->cmdline[pThis->cursor-1] == '\0')
 		tkn_arr[status++] = "";
 	compl_token = pThis->get_completion (status, tkn_arr);
