@@ -76,7 +76,9 @@ typedef struct {
 #endif
 
 // microrl struct, contain internal library data
-typedef struct {
+typedef struct microrl microrl_t;
+
+struct microrl {
 #ifdef _USE_ESC_SEQ
 	char escape_seq;
 	char escape;
@@ -101,7 +103,7 @@ typedef struct {
 	void (*sigint) (microrl_t* pThis);
 #endif
 	void* userdata;                    // Generic user data storage
-} microrl_t;
+};
 
 // init internal data, calls once at start up
 void microrl_init (microrl_t * pThis, void (*print)(microrl_t* pThis, const char*));
