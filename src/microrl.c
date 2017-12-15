@@ -520,11 +520,13 @@ static void microrl_backspace (microrl_t * pThis)
 // remove one char forward at cursor
 static void microrl_delete (microrl_t * pThis)
 {
-	memmove (pThis->cmdline + pThis->cursor,
-					 pThis->cmdline + pThis->cursor+1,
-					 pThis->cmdlen-pThis->cursor+1);
+	if (pThis->cmdlen > 0) {
+		memmove (pThis->cmdline + pThis->cursor,
+						 pThis->cmdline + pThis->cursor+1,
+						 pThis->cmdlen-pThis->cursor+1);
 		pThis->cmdline [pThis->cmdlen] = '\0';
 		pThis->cmdlen--;
+	}
 }
 
 #ifdef _USE_COMPLETE
