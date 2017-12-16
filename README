@@ -17,6 +17,7 @@ Microrl library is designed to help implement command line interface in small an
 	 - Ctrl+A (like HOME) 
 	 - Ctrl+E (like END)
 	 - Ctrl+H (like backspace)
+	 - Ctrl+D (delete one character forward)
 	 - Ctrl+B (like cursor arrow left) 
 	 - Ctrl+F (like cursor arrow right)
 	 - Ctrl+P (like cursor arrow up)
@@ -29,6 +30,9 @@ Microrl library is designed to help implement command line interface in small an
 
 	** completion
 	 - via completion callback
+
+        ** quoting (optional)
+	 - Use single or double quotes around a command argument that needs to include space characters.
 
 
 3. SRC STRUCTURE
