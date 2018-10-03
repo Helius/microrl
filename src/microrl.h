@@ -1,10 +1,14 @@
 #ifndef _MICRORL_H_
 #define _MICRORL_H_
 
-#include "config.h"
+#include "microrl_config.h"
 
-#define true  1
-#define false 0
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#define True  1
+#define False 0
 
  /* define the Key codes */
 #define KEY_NUL 0 /**< ^@ Null character */
@@ -76,19 +80,21 @@ typedef struct {
 	ring_history_t ring_hist;          // history object
 #endif
 	char * prompt_str;                 // pointer to prompt string
-	char cmdline [_COMMAND_LINE_LEN];  // cmdline buffer
+    int prompt_len;                 // current prompt length
+    char cmdline [_COMMAND_LINE_LEN];  // cmdline buffer
 	int cmdlen;                        // last position in command line
 	int cursor;                        // input cursor
-	int (*execute) (int argc, const char * const * argv );            // ptr to 'execute' callback
-	char ** (*get_completion) (int argc, const char * const * argv ); // ptr to 'completion' callback
-	void (*print) (const char *);                                     // ptr to 'print' callback
+    int (*execute) (void *extra,int argc, const char * const * argv );            // ptr to 'execute' callback
+    char ** (*get_completion) (void *extra,int argc, const char * const * argv ); // ptr to 'completion' callback
+    void (*print) (void *extra, const char *);                                     // ptr to 'print' callback
+    void *extra;                  // ptr to 'print' channel
 #ifdef _USE_CTLR_C
-	void (*sigint) (void);
+    void (*sigint) (void *extra );
 #endif
 } microrl_t;
 
 // init internal data, calls once at start up
-void microrl_init (microrl_t * pThis, void (*print)(const char*));
+void microrl_init (microrl_t * pThis, void (*print)(void *, const char*), void *extra );
 
 // set echo mode (true/false), using for disabling echo for password input
 // echo mode will enabled after user press Enter.
@@ -100,18 +106,25 @@ void microrl_set_echo (int);
 //   must return NULL-terminated string, contain complite variant splitted by 'Whitespace'
 //   If complite token found, it's must contain only one token to be complitted
 //   Empty string if complite not found, and multiple string if there are some token
-void microrl_set_complete_callback (microrl_t * pThis, char ** (*get_completion)(int, const char* const*));
+void microrl_set_complete_callback (microrl_t * pThis, char ** (*get_completion)(void*,int, const char* const*));
 
 // pointer to callback func, that called when user press 'Enter'
 // execute func param: argc - argument count, argv - pointer array to token string
-void microrl_set_execute_callback (microrl_t * pThis, int (*execute)(int, const char* const*));
+void microrl_set_execute_callback (microrl_t * pThis, int (*execute)(void *,int, const char* const*));
 
 // set callback for Ctrl+C terminal signal
 #ifdef _USE_CTLR_C
-void microrl_set_sigint_callback (microrl_t * pThis, void (*sigintf)(void));
+void microrl_set_sigint_callback (microrl_t * pThis, void (*sigintf)(void *));
 #endif
 
 // insert char to cmdline (for example call in usart RX interrupt)
 void microrl_insert_char (microrl_t * pThis, int ch);
+
+// change prompt, calls once at start up
+void microrl_set_prompt( microrl_t * pThis, char *prompt, int promptlen );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
