@@ -90,6 +90,7 @@ typedef struct {
     void *extra;                  // ptr to 'print' channel
 #ifdef _USE_CTLR_C
     void (*sigint) (void *extra );
+	int enable_echo;
 #endif
 } microrl_t;
 
@@ -99,6 +100,9 @@ void microrl_init (microrl_t * pThis, void (*print)(void *, const char*), void *
 // set echo mode (true/false), using for disabling echo for password input
 // echo mode will enabled after user press Enter.
 void microrl_set_echo (int);
+
+// set echo mode (true/false), using for disabling echo
+void microrl_echo_en(microrl_t * pThis, int mode);
 
 // set pointer to callback complition func, that called when user press 'Tab'
 // callback func description:

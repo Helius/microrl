@@ -297,22 +297,33 @@ static void terminal_reset_cursor (microrl_t * pThis)
 }
 
 //*****************************************************************************
+// set echo mode (true/false), using for disabling echo
+void microrl_echo_en(microrl_t * pThis, int mode)
+{
+	pThis->enable_echo = mode;
+}
+
+//*****************************************************************************
 // print cmdline to screen, replace '\0' to wihitespace 
 static void terminal_print_line (microrl_t * pThis, int pos, int cursor)
 {
-    pThis->print (pThis->extra, "\033[K");    // delete all from cursor to end
+	//if echo enabled
+	// if(pThis->enable_echo) {
+		
+		pThis->print (pThis->extra, "\033[K");    // delete all from cursor to end
 
-	char nch [] = {0,0};
-	int i;
-	for (i = pos; i < pThis->cmdlen; i++) {
-		nch [0] = pThis->cmdline [i];
-		if (nch[0] == '\0')
-			nch[0] = ' ';
-        pThis->print (pThis->extra,nch);
-	}
-	
-	terminal_reset_cursor (pThis);
-	terminal_move_cursor (pThis, cursor);
+		char nch [] = {0,0};
+		int i;
+		for (i = pos; i < pThis->cmdlen; i++) {
+			nch [0] = pThis->cmdline [i];
+			if (nch[0] == '\0')
+				nch[0] = ' ';
+			pThis->print (pThis->extra,nch);
+		}
+		
+		terminal_reset_cursor (pThis);
+		terminal_move_cursor (pThis, cursor);
+	// }
 }
 
 //*****************************************************************************
@@ -699,9 +710,11 @@ void microrl_insert_char (microrl_t * pThis, int ch)
 			default:
 			if (((ch == ' ') && (pThis->cmdlen == 0)) || IS_CONTROL_CHAR(ch))
 				break;
-			if (microrl_insert_text (pThis, (char*)&ch, 1))
-				terminal_print_line (pThis, pThis->cursor-1, pThis->cursor);
-			
+			if (microrl_insert_text (pThis, (char*)&ch, 1)) {
+				if(pThis->enable_echo)
+					terminal_print_line (pThis, pThis->cursor-1, pThis->cursor);
+			}
+				 		
 			break;
 		}
 #ifdef _USE_ESC_SEQ
