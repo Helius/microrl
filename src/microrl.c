@@ -548,8 +548,27 @@ void new_line_handler(microrl_t * pThis){
 		pThis->print ("ERROR:too many tokens");
 		pThis->print (ENDL);
 	}
-	if ((status > 0) && (pThis->execute != NULL))
-		pThis->execute (status, tkn_arr);
+	if ((status > 0) && (pThis->execute != NULL)){
+		status = pThis->execute(status, tkn_arr);
+		if (status){
+			char str[16];
+#ifdef _USE_LIBC_STDIO
+			snprintf(str, 16, "%d", status);
+#else
+            		char *endstr = str;
+            		if (0 > status){
+				str[0] = '-';
+				endstr = str + 1;
+				status = -status;
+			}
+			endstr = u16bit_to_str(status, endstr);
+			endstr[0] = 0;
+#endif
+			pThis->print("Command exited with status:");
+			pThis->print(str);
+			pThis->print(ENDL);
+		}
+	}
 	print_prompt (pThis);
 	pThis->cmdlen = 0;
 	pThis->cursor = 0;
