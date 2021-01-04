@@ -114,12 +114,14 @@ static int hist_restore_line (ring_history_t * pThis, char * line, int dir)
 {
 	int cnt = 0;
 	// count history record	
-	int header = pThis->begin;
-	while (pThis->ring_buf [header] != 0) {
-		header += pThis->ring_buf [header] + 1;
-		if (header >= _RING_HISTORY_LEN)
-			header -= _RING_HISTORY_LEN; 
-		cnt++;
+	{
+		int header = pThis->begin;
+		while (pThis->ring_buf [header] != 0) {
+			header += pThis->ring_buf [header] + 1;
+			if (header >= _RING_HISTORY_LEN)
+				header -= _RING_HISTORY_LEN; 
+			cnt++;
+		}
 	}
 
 	if (dir == _HIST_UP) {
@@ -470,10 +472,10 @@ static void microrl_backspace (microrl_t * pThis)
 //*****************************************************************************
 static int common_len (char ** arr)
 {
-	int i;
+	size_t i;
 	int j;
 	char *shortest = arr[0];
-	int shortlen = strlen(shortest);
+	size_t shortlen = strlen(shortest);
 
 	for (i = 0; arr[i] != NULL; ++i)
 		if (strlen(arr[i]) < shortlen) {
@@ -533,7 +535,7 @@ static void microrl_get_complite (microrl_t * pThis)
 #endif
 
 //*****************************************************************************
-void new_line_handler(microrl_t * pThis){
+static void new_line_handler(microrl_t * pThis){
 	char const * tkn_arr [_COMMAND_TOKEN_NMB];
 	int status;
 
