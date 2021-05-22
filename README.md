@@ -12,13 +12,13 @@ Microrl library is designed to help implement command line interface in small an
 
 	** hot keys support
 	 - backspace, cursor arrow, HOME, END keys
-	 - Ctrl+U (cut line from cursor to begin) 
-	 - Ctrl+K (cut line from cursor to end) 
-	 - Ctrl+A (like HOME) 
+	 - Ctrl+U (cut line from cursor to begin)
+	 - Ctrl+K (cut line from cursor to end)
+	 - Ctrl+A (like HOME)
 	 - Ctrl+E (like END)
 	 - Ctrl+H (like backspace)
 	 - Ctrl+D (delete one character forward)
-	 - Ctrl+B (like cursor arrow left) 
+	 - Ctrl+B (like cursor arrow left)
 	 - Ctrl+F (like cursor arrow right)
 	 - Ctrl+P (like cursor arrow up)
 	 - Ctrl+N (like cursor arrow down)
@@ -34,25 +34,29 @@ Microrl library is designed to help implement command line interface in small an
         ** quoting (optional)
 	 - Use single or double quotes around a command argument that needs to include space characters.
 
+	** echo
+	 - use "microrl_set_echo" function to turn on or turn off echo.
+	 - could be used to print * insted of real characters.
 
 3. SRC STRUCTURE
 
-src/             - library source
-  microrl.c      - microrl routines
-  microrl.h      - lib interface and data type
-  config.h       - customisation config-file
-examples/        - library usage examples
-  avr_misc/      - avr specific routines for avr example
-  unix_misc/     - unix specific routines for desktop example
-  example.c      - common part of example, for build  demonstrating example for various platform
-  example_misc.h - interface to platform specific routines for example build (avr, unix)
-  Makefile       - unix example build (gcc)
-  Makefile.avr   - avr example build (avr-gcc)
+src/               - library source
+  microrl.c        - microrl routines
+  microrl.h        - lib interface and data type
+  config.h         - customisation config-file
+examples/          - library usage examples
+  avr_misc/        - avr specific routines for avr example
+  unix_misc/       - unix specific routines for desktop example
+  esp8266_example/ - example for esp8266 (platformio) - echo feature
+  example.c        - common part of example, for build  demonstrating example for various platform
+  example_misc.h   - interface to platform specific routines for example build (avr, unix)
+  Makefile         - unix example build (gcc)
+  Makefile.avr     - avr example build (avr-gcc)
 
 
 4. INSTALL
 
-Requirements: C compiler with support for C99 standard (GNU GCC, Keil, IAR) with standard C library (libc, uClibc or other compatible). Also you have to implement several routines in your own code for library to work. 
+Requirements: C compiler with support for C99 standard (GNU GCC, Keil, IAR) with standard C library (libc, uClibc or other compatible). Also you have to implement several routines in your own code for library to work.
 NOTE: need add -std=gnu99 arg for gcc
 
 For embed lib to you project, you need to do few simple steps:
@@ -69,9 +73,9 @@ For example on linux PC print callback may be:
 
 c) Call 'microrl_set_execute_callback' with pointer to you routine, what will be called if user press enter in terminal. Execute callback give a 'argc', 'argv' parametrs, like 'main' func in application. All token in 'argv' is null terminated. So you can simply walk through argv and handle commands.
 
-d) If you want completion support if user press TAB key, call 'microrl_set_complete_callback' and set you callback. It also give 'argc' and 'argv' arguments, so iterate through it and return set of complete variants. 
+d) If you want completion support if user press TAB key, call 'microrl_set_complete_callback' and set you callback. It also give 'argc' and 'argv' arguments, so iterate through it and return set of complete variants.
 
-e) Look at 'config.h' file, for tune library for you requiring. 
+e) Look at 'config.h' file, for tune library for you requiring.
 
 f) Now you just call 'microrl_insert_char' on each char received from input stream (usart, network, etc).
 
@@ -91,7 +95,7 @@ Example of code:
 		microrl_set_complete_callback (prl, complet);
 		// set callback for ctrl+c handling (optionally)
 		microrl_set_sigint_callback (prl, sigint);
-		
+
 		while (1) {
 			// put received char from stdin to microrl lib
 			char ch = get_char ();
@@ -104,5 +108,5 @@ See examples library usage.
 
 
 
-Author: Eugene Samoylov aka Helius (ghelius@gmail.com) 
+Author: Eugene Samoylov aka Helius (ghelius@gmail.com)
 01.09.2011

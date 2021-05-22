@@ -1,7 +1,6 @@
 /*
 Author: Samoylov Eugene aka Helius (ghelius@gmail.com)
 BUGS and TODO:
--- add echo_off feature
 -- rewrite history for use more than 256 byte buffer
 */
 
@@ -351,35 +350,37 @@ static void terminal_move_cursor (microrl_t * pThis, int offset)
 // print cmdline to screen, replace '\0' to whitespace
 static void terminal_print_line (microrl_t * pThis, int pos, int reset)
 {
-	char str[_PRINT_BUFFER_LEN];
-	char *j = str;
-	if (reset) {
+	if (!ECHO_IS_OFF()) {
+		char str[_PRINT_BUFFER_LEN];
+		char *j = str;
+		if (reset) {
 #ifdef _USE_CARRIAGE_RETURN
-		*j++ = '\r';
-		j = generate_move_cursor(j, _PROMPT_LEN + pos);
+			*j++ = '\r';
+			j = generate_move_cursor(j, _PROMPT_LEN + pos);
 #else
-		j = generate_move_cursor(j, -(_COMMAND_LINE_LEN + _PROMPT_LEN + 2));
-		j = generate_move_cursor(j, _PROMPT_LEN + pos);
+			j = generate_move_cursor(j, -(_COMMAND_LINE_LEN + _PROMPT_LEN + 2));
+			j = generate_move_cursor(j, _PROMPT_LEN + pos);
 #endif
-	}
-	for (int i = pos; i < pThis->cmdlen; i++) {
-		*j++ = (pThis->cmdline [i] == '\0') ? ' ' : pThis->cmdline [i];
-		if (j-str == sizeof(str)-1) {
-			*j = '\0';
-			pThis->print (pThis, str);
-			j = str;
 		}
-	}
-	if (j - str + 3+6+1 > _PRINT_BUFFER_LEN) {
-			*j = '\0';
-			pThis->print (pThis, str);
-			j = str;
-	}
-	*j++ = '\033';   // delete all past end of text
-	*j++ = '[';
-	*j++ = 'K';
-	generate_move_cursor (j, pThis->cursor - pThis->cmdlen);
-	pThis->print (pThis, str);
+		for (int i = pos; i < pThis->cmdlen; i++) {
+			*j++ = (pThis->cmdline [i] == '\0') ? ' ' : pThis->cmdline [i];
+			if (j-str == sizeof(str)-1) {
+				*j = '\0';
+				pThis->print (pThis, str);
+				j = str;
+			}
+		}
+		if (j - str + 3+6+1 > _PRINT_BUFFER_LEN) {
+				*j = '\0';
+				pThis->print (pThis, str);
+				j = str;
+		}
+		*j++ = '\033';   // delete all past end of text
+		*j++ = '[';
+		*j++ = 'K';
+		generate_move_cursor (j, pThis->cursor - pThis->cmdlen);
+		pThis->print (pThis, str);
+  }
 }
 
 //*****************************************************************************
@@ -391,6 +392,8 @@ void microrl_init (microrl_t * pThis, void (*print) (microrl_t*, const char *))
 #ifdef _ENABLE_INIT_PROMPT
 	print_prompt (pThis);
 #endif
+	pThis->echo = ON;
+	pThis->start_password = -1; //
 }
 
 //*****************************************************************************
@@ -485,6 +488,8 @@ static int microrl_insert_text (microrl_t * pThis, char * text, int len)
 {
 	int i;
 	if (pThis->cmdlen + len < _COMMAND_LINE_LEN) {
+		if (ECHO_IS_ONCE() & (pThis->start_password == -1))
+			pThis->start_password = pThis->cmdlen;
 		memmove (pThis->cmdline + pThis->cursor + len,
 						 pThis->cmdline + pThis->cursor,
 						 pThis->cmdlen - pThis->cursor);
@@ -606,6 +611,11 @@ static void microrl_get_complite (microrl_t * pThis)
 void new_line_handler(microrl_t * pThis){
 	char const * tkn_arr [_COMMAND_TOKEN_NMB];
 	int status;
+
+	if (ECHO_IS_ONCE()){
+		microrl_set_echo(pThis, ON);
+		pThis->start_password = -1;
+	}
 
 	terminal_newline (pThis);
 #ifdef _USE_HISTORY
@@ -762,4 +772,9 @@ void microrl_insert_char (microrl_t * pThis, int ch)
 #ifdef _USE_ESC_SEQ
 	}
 #endif
+}
+
+//*****************************************************************************
+void microrl_set_echo (microrl_t * pThis, echo_t echo) {
+	pThis->echo = echo;
 }
