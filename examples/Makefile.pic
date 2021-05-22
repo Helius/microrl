@@ -1,0 +1,24 @@
+CC        = /opt/microchip/xc8/v1.33/bin/xc8
+MCU       = 18F4520
+#DEBUG     = -g
+TARGET    = microrl_test
+
+CCFLAGS   = --pass1  --chip=$(MCU) -Q -G  --double=24 --float=24 --emi=wordwrite --opt=default,+asm,+asmfile,-speed,+space,-debug --addrqual=ignore --mode=free -P -N255 --warn=0 --asmlist --summary=default,-psect,-class,+mem,-hex,-file --output=default,-inhx032 --runtime=default,+clear,+init,-keep,-no_startup,-download,+config,+clib,+plib --output=-mcof,+elf:multilocs --stack=compiled:auto:auto:auto
+LDFLAGS   = --chip=$(MCU) -G -m$(TARGET).map -o$(TARGET).elf
+
+all: $(TARGET).elf
+
+
+$(TARGET).elf: example.p1 ../src/microrl.p1 pic_lf4520_misc/pic_misc.p1 pic_lf4520_misc/interrupt.p1 pic_lf4520_misc/uart.p1
+	$(CC) $^ -o$@ $(LDFLAGS) #$(CCFLAGS)
+
+
+%.p1: %.c
+	$(CC) $(CCFLAGS) -o$(*).p1 $<
+
+clean:
+	rm -f pic_lf4520_misc/*.p1 pic_lf4520_misc/*.d pic_lf4520_misc/*.pre ../src/microrl.p1 ../src/microrl.d ../src/microrl.pre *.p1 *.d *.pre $(TARGET).* startup.* l.obj funclist
+
+#load:
+#	avreal +ATmega8 -aft2232 -evw -c $(TARGET).hex
+
