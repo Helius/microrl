@@ -1,45 +1,50 @@
 microrl - micro read line library for small and embedded devices with basic VT100 support.
 
-1. DESCRIPTION
+# 1. DESCRIPTION
 
-Microrl library is designed to help implement command line interface in small and embedded devices. Main goal is to write compact, small memory consuming but powerful interfaces, with support navigation through command line with cursor, HOME, END keys, hot key like Ctrl+U and other, history and completion feature.
+Microrl library is designed to help implement command line interface in small and embedded devices.
+
+Main goal is to write compact, small memory consuming but powerful interfaces, with support navigation through command line with cursor, HOME, END keys, hot key like Ctrl+U and other, history and completion feature.
 
 
-2. FEATURE
+# 2. FEATURE
 
-	** config.h file
-	 - Turn on/off feature for add functional/decrease memory via config files.
+## config.h file
+- Turn on/off feature for add functional/decrease memory via config files.
 
-	** hot keys support
-	 - backspace, cursor arrow, HOME, END keys
-	 - Ctrl+U (cut line from cursor to begin)
-	 - Ctrl+K (cut line from cursor to end)
-	 - Ctrl+A (like HOME)
-	 - Ctrl+E (like END)
-	 - Ctrl+H (like backspace)
-	 - Ctrl+D (delete one character forward)
-	 - Ctrl+B (like cursor arrow left)
-	 - Ctrl+F (like cursor arrow right)
-	 - Ctrl+P (like cursor arrow up)
-	 - Ctrl+N (like cursor arrow down)
-	 - Ctrl+R (retype prompt and partial command)
-	 - Ctrl+C (call 'sigint' callback, only for embedded system)
+## hot keys support
 
-	** history
-	 - Static ring buffer history for memory saving. Number of commands saved to history depends from commands length and buffer size (defined in config)
+- backspace, cursor arrow, HOME, END keys
+- Ctrl+U (cut line from cursor to begin)
+- Ctrl+K (cut line from cursor to end)
+- Ctrl+A (like HOME)
+- Ctrl+E (like END)
+- Ctrl+H (like backspace)
+- Ctrl+D (delete one character forward)
+- Ctrl+B (like cursor arrow left)
+- Ctrl+F (like cursor arrow right)
+- Ctrl+P (like cursor arrow up)
+- Ctrl+N (like cursor arrow down)
+- Ctrl+R (retype prompt and partial command)
+- Ctrl+C (call 'sigint' callback, only for embedded system)
 
-	** completion
-	 - via completion callback
+## history
 
-        ** quoting (optional)
-	 - Use single or double quotes around a command argument that needs to include space characters.
+- Static ring buffer history for memory saving. Number of commands saved to history depends from commands length and buffer size (defined in config)
 
-	** echo
-	 - use "microrl_set_echo" function to turn on or turn off echo.
-	 - could be used to print * insted of real characters.
+## completion
+ - via completion callback
 
-3. SRC STRUCTURE
+## quoting (optional)
+ - Use single or double quotes around a command argument that needs to include space characters.
 
+## echo
+ - use "microrl_set_echo" function to turn on or turn off echo.
+[//] - could be used to print * instead of real characters. (not working for now)
+
+# 3. SRC STRUCTURE
+
+~~~
 src/               - library source
   microrl.c        - microrl routines
   microrl.h        - lib interface and data type
@@ -52,35 +57,39 @@ examples/          - library usage examples
   example_misc.h   - interface to platform specific routines for example build (avr, unix)
   Makefile         - unix example build (gcc)
   Makefile.avr     - avr example build (avr-gcc)
+~~~
 
+# 4. INSTALL
 
-4. INSTALL
+Requirements: 
 
-Requirements: C compiler with support for C99 standard (GNU GCC, Keil, IAR) with standard C library (libc, uClibc or other compatible). Also you have to implement several routines in your own code for library to work.
-NOTE: need add -std=gnu99 arg for gcc
+C compiler with support for C99 standard (GNU GCC, Keil, IAR) with standard C library (libc, uClibc or other compatible). Also you have to implement several routines in your own code for library to work.
+
+**NOTE**: need add -std=gnu99 arg for gcc
 
 For embed lib to you project, you need to do few simple steps:
 
-a) Include microrl.h file to you project.
-
-b) Create 'microrl_t' object, and call 'microrl_init' func, with print callback pointer. Print callback pointer is pointer to function that call by library if it's need to put text to terminal. Text string always is null terminated.
+1. Include `microrl.h` file to you project.
+2. Create `microrl_t` object, and call `microrl_init()` func, with print callback pointer. Print callback pointer is pointer to function that call by library if it's need to put text to terminal. Text string always is null terminated.
 For example on linux PC print callback may be:
+```c
 	// print callback for microrl library
 	void print (char * str)
 	{
 		fprintf (stdout, "%s", str);
 	}
+```
+3. Call `microrl_set_execute_callback` with pointer to you routine, what will be called if user press enter in terminal. Execute callback give a `argc`, `argv` parameters, like `main()` func in application. All token in `argv` is null terminated. So you can simply walk through argv and handle commands.
 
-c) Call 'microrl_set_execute_callback' with pointer to you routine, what will be called if user press enter in terminal. Execute callback give a 'argc', 'argv' parametrs, like 'main' func in application. All token in 'argv' is null terminated. So you can simply walk through argv and handle commands.
+4. If you want completion support if user press TAB key, call `microrl_set_complete_callback()` and set you callback. It also give `argc` and `argv` arguments, so iterate through it and return set of complete variants.
 
-d) If you want completion support if user press TAB key, call 'microrl_set_complete_callback' and set you callback. It also give 'argc' and 'argv' arguments, so iterate through it and return set of complete variants.
+5. Look at `config.h` file, for tune library for you requiring.
 
-e) Look at 'config.h' file, for tune library for you requiring.
-
-f) Now you just call 'microrl_insert_char' on each char received from input stream (usart, network, etc).
+6. Now you just call `microrl_insert_char()` on each char received from input stream (usart, network, etc).
 
 Example of code:
 
+```c
 	//*****************************************************************************
 	int main (int argc, char ** argv)
 	{
@@ -103,10 +112,8 @@ Example of code:
 		}
 		return 0;
 	}
-
+```
 See examples library usage.
-
-
 
 Author: Eugene Samoylov aka Helius (ghelius@gmail.com)
 01.09.2011
