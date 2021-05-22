@@ -608,20 +608,21 @@ static void microrl_get_complite (microrl_t * pThis)
 #endif
 
 //*****************************************************************************
-void new_line_handler(microrl_t * pThis){
+void new_line_handler(microrl_t * pThis)
+{
 	char const * tkn_arr [_COMMAND_TOKEN_NMB];
 	int status;
+	terminal_newline (pThis);
 
+#ifdef _USE_HISTORY
+	if ((pThis->cmdlen > 0) && (ECHO_IS_ON()))
+		hist_save_line (&pThis->ring_hist, pThis->cmdline, pThis->cmdlen);
+#endif
 	if (ECHO_IS_ONCE()){
 		microrl_set_echo(pThis, ON);
 		pThis->start_password = -1;
 	}
 
-	terminal_newline (pThis);
-#ifdef _USE_HISTORY
-	if (pThis->cmdlen > 0)
-		hist_save_line (&pThis->ring_hist, pThis->cmdline, pThis->cmdlen);
-#endif
 	status = split (pThis, pThis->cmdlen, tkn_arr);
 	if (status == -1){
 		//          pThis->print ("ERROR: Max token amount exseed\n");
