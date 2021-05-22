@@ -10,18 +10,18 @@ for AVR, linux PC or ARM
 void init (void);
 
 // print to stream callback
-void print (const char * str);
+void print (void * pThis, const char * str);
 
 // get_char from stream
 char get_char (void);
 
 // execute callback
-int execute (int argc, const char * const * argv);
+int execute (void * pThis, int argc, const char * const * argv);
 
 // completion callback
-char ** complet (int argc, const char * const * argv);
+char ** complet (void * pThis, int argc, const char * const * argv);
 
 // ctrl+c callback
-void sigint (void);
+void sigint (void * pThis);
 
 #endif

@@ -13,7 +13,7 @@ void init (void){
 
 //*****************************************************************************
 // print callback for microrl library
-void print (const char * str)
+void print (void * pThis, const char * str)
 {
 	fprintf (stdout, "%s", str);
 }
@@ -64,66 +64,66 @@ int val;
 
 
 //*****************************************************************************
-void print_help ()
+void print_help (void * pThis)
 {
-	print ("Use TAB key for completion\n\rCommand:\n\r");
-	print ("\tversion {microrl | demo} - print version of microrl lib or version of this demo src\n\r");
-	print ("\thelp  - this message\n\r");
-	print ("\tclear - clear screen\n\r");
-	print ("\tlist  - list all commands in tree\n\r");
-	print ("\tname [string] - print 'name' value if no 'string', set name value to 'string' if 'string' present\n\r");
-	print ("\tlisp - dummy command for demonstation auto-completion, while inputed 'l+<TAB>'\n\r");
+	print (pThis, "Use TAB key for completion\n\rCommand:\n\r");
+	print (pThis, "\tversion {microrl | demo} - print version of microrl lib or version of this demo src\n\r");
+	print (pThis, "\thelp  - this message\n\r");
+	print (pThis, "\tclear - clear screen\n\r");
+	print (pThis, "\tlist  - list all commands in tree\n\r");
+	print (pThis, "\tname [string] - print 'name' value if no 'string', set name value to 'string' if 'string' present\n\r");
+	print (pThis, "\tlisp - dummy command for demonstation auto-completion, while inputed 'l+<TAB>'\n\r");
 }
 
 //*****************************************************************************
 // execute callback for microrl library
 // do what you want here, but don't write to argv!!! read only!!
-int execute (int argc, const char * const * argv)
+int execute (void * pThis, int argc, const char * const * argv)
 {
 	int i = 0;
 	// just iterate through argv word and compare it with your commands
 	while (i < argc) {
 		if (strcmp (argv[i], _CMD_HELP) == 0) {
-			print ("microrl library based shell v 1.0\n\r");
-			print_help ();        // print help
+			print (pThis, "microrl library based shell v 1.0\n\r");
+			print_help (pThis);        // print help
 		} else if (strcmp (argv[i], _CMD_NAME) == 0) {
 			if ((++i) < argc) { // if value preset
 				if (strlen (argv[i]) < _NAME_LEN) {
 					strcpy (name, argv[i]);
 				} else {
-					print ("name value too long!\n\r");
+					print (pThis, "name value too long!\n\r");
 				}
 			} else {
-				print (name);
-				print ("\n\r");
+				print (pThis, name);
+				print (pThis, "\n\r");
 			}
 		} else if (strcmp (argv[i], _CMD_VER) == 0) {
 			if (++i < argc) {
 				if (strcmp (argv[i], _SCMD_DEMO) == 0) {
-					print ("demo v 1.0\n\r");
+					print (pThis, "demo v 1.0\n\r");
 				} else if (strcmp (argv[i], _SCMD_MRL) == 0) {
-					print ("microrl v 1.2\n\r");
+					print (pThis, "microrl v 1.2\n\r");
 				} else {
-					print ((char*)argv[i]);
-					print (" wrong argument, see help\n\r");
+					print (pThis, (char*)argv[i]);
+					print (pThis, " wrong argument, see help\n\r");
 				}
 			} else {
-				print ("version needs 1 parametr, see help\n\r");
+				print (pThis, "version needs 1 parametr, see help\n\r");
 			}
 		} else if (strcmp (argv[i], _CMD_CLEAR) == 0) {
-			print ("\033[2J");    // ESC seq for clear entire screen
-			print ("\033[H");     // ESC seq for move cursor at left-top corner
+			print (pThis, "\033[2J");    // ESC seq for clear entire screen
+			print (pThis, "\033[H");     // ESC seq for move cursor at left-top corner
 		} else if (strcmp (argv[i], _CMD_LIST) == 0) {
-			print ("available command:\n");// print all command per line
+			print (pThis, "available command:\n");// print all command per line
 			for (int i = 0; i < _NUM_OF_CMD; i++) {
-				print ("\t");
-				print (keyworld[i]);
-				print ("\n\r");
+				print (pThis, "\t");
+				print (pThis, keyworld[i]);
+				print (pThis, "\n\r");
 			}
 		} else {
-			print ("command: '");
-			print ((char*)argv[i]);
-			print ("' Not found.\n\r");
+			print (pThis, "command: '");
+			print (pThis, (char*)argv[i]);
+			print (pThis, "' Not found.\n\r");
 		}
 		i++;
 	}
@@ -133,7 +133,7 @@ int execute (int argc, const char * const * argv)
 #ifdef _USE_COMPLETE
 //*****************************************************************************
 // completion callback for microrl library
-char ** complet (int argc, const char * const * argv)
+char ** complet (void * pThis, int argc, const char * const * argv)
 {
 	int j = 0;
 
@@ -172,7 +172,7 @@ char ** complet (int argc, const char * const * argv)
 #endif
 
 //*****************************************************************************
-void sigint (void)
+void sigint (void * pThis)
 {
-	print ("^C catched!\n\r");
+	print (pThis, "^C catched!\n\r");
 }
