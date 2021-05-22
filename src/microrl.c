@@ -760,9 +760,11 @@ void microrl_insert_char (microrl_t * pThis, int ch)
 				break;
 			if (microrl_insert_text (pThis, (char*)&ch, 1)) {
 				if (pThis->cursor == pThis->cmdlen) {
-					char nch [] = {0,0};
-					nch[0] = ch;
-					pThis->print (pThis, nch);
+					if (!ECHO_IS_OFF() && !ECHO_IS_ONCE()) {
+						char nch [] = {0,0};
+						nch[0] = ch;
+						pThis->print (pThis, nch);
+					}
 				} else {
 					terminal_print_line (pThis, pThis->cursor-1, 0);
 				}

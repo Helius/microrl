@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
-#include <unistd.h> 
+#include <unistd.h>
 #include <string.h>
 #include "../../src/microrl.h"
 
@@ -35,11 +35,16 @@ char get_char (void)
 }
 
 
+#define _LOGIN      "admin"
+#define _PASSWORD   "1234"
+
+
 // definition commands word
 #define _CMD_HELP  "help"
 #define _CMD_CLEAR "clear"
 #define _CMD_LIST  "list"
 #define _CMD_LISP  "lisp" // for demonstration completion on 'l + <TAB>'
+#define _CMD_LOGIN "login"
 #define _CMD_NAME  "name"
 #define _CMD_VER   "version"
 // sub commands for version command
@@ -71,6 +76,7 @@ void print_help (void * pThis)
 	print (pThis, "\thelp  - this message\n\r");
 	print (pThis, "\tclear - clear screen\n\r");
 	print (pThis, "\tlist  - list all commands in tree\n\r");
+	print (pThis, "\tlogin YOUR_LOGIN   - admin in this example\n\r");
 	print (pThis, "\tname [string] - print 'name' value if no 'string', set name value to 'string' if 'string' present\n\r");
 	print (pThis, "\tlisp - dummy command for demonstation auto-completion, while inputed 'l+<TAB>'\n\r");
 }
@@ -80,6 +86,7 @@ void print_help (void * pThis)
 // do what you want here, but don't write to argv!!! read only!!
 int execute (void * pThis, int argc, const char * const * argv)
 {
+  static int pass_word = 0;
 	int i = 0;
 	// just iterate through argv word and compare it with your commands
 	while (i < argc) {
@@ -120,6 +127,32 @@ int execute (void * pThis, int argc, const char * const * argv)
 				print (pThis, keyworld[i]);
 				print (pThis, "\n\r");
 			}
+		}
+		else if (strcmp (argv[i], _CMD_LOGIN) == 0) {
+			if (++i < argc) {
+				if (strcmp (argv[i], _LOGIN) == 0) {
+					print(pThis, "Enter your password:\r\n");
+					microrl_set_echo (pThis, ONCE);
+					pass_word = 1;
+					return 1;
+				} else {
+					print(pThis, "Wrong login name. try again.\r\n");
+					return 1;
+				}
+			} else {
+				print(pThis, "Enter your login after command login.\r\n");
+				return 1;
+			}
+		} else if (pass_word == 1) {
+				if (strcmp(argv[i], _PASSWORD) == 0) {
+					print(pThis, "Grate You Log In!!!\r\n");
+					pass_word = 0;
+					return 1;
+				} else {
+					print(pThis, "Wrong password, try log in again.\r\n");
+					pass_word = 0;
+					return 1;
+				}
 		} else {
 			print (pThis, "command: '");
 			print (pThis, (char*)argv[i]);
