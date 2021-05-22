@@ -1,7 +1,9 @@
 #ifndef _MICRORL_H_
 #define _MICRORL_H_
 
-#include "config.h"
+#include "microrl_config.h"
+
+#define MICRORL_LIB_VER "1.5.1"
 
 #define true  1
 #define false 0
@@ -69,9 +71,7 @@ typedef struct {
 	char escape_seq;
 	char escape;
 #endif
-#if (defined(_ENDL_CRLF) || defined(_ENDL_LFCR))
-	char tmpch;
-#endif
+	char last_endl;                    // either 0 or the CR or LF that just triggered a newline
 #ifdef _USE_HISTORY
 	ring_history_t ring_hist;          // history object
 #endif
@@ -113,5 +113,11 @@ void microrl_set_sigint_callback (microrl_t * pThis, void (*sigintf)(void));
 
 // insert char to cmdline (for example call in usart RX interrupt)
 void microrl_insert_char (microrl_t * pThis, int ch);
+
+// clear the current line, possibly to print information for user
+void microrl_erase_prompt(microrl_t *pThis);
+
+// restore the previous prompt/line
+#define microrl_restore_prompt(pThis)  microrl_insert_char(pThis, KEY_DC2)
 
 #endif
