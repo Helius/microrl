@@ -11,10 +11,14 @@
 /*
 PIC platform specific implementation routines (for PIC18F4520 chip)
 */
-#define _AVR_DEMO_VER "1.0"
+#define _PIC_DEMO_VER "1.0"
+
+#define _LOGIN      "admin"
+#define _PASSWORD   "1234"
 
 // definition commands word
 #define _CMD_HELP   "help"
+#define _CMD_LOGIN "login"
 #define _CMD_CLEAR  "clear"
 #define _CMD_CLR    "clear_port"
 #define _CMD_SET    "set_port"
@@ -22,11 +26,11 @@ PIC platform specific implementation routines (for PIC18F4520 chip)
 	#define _SCMD_PB  "port_b"
 	#define _SCMD_PD  "port_d"
 
-#define _NUM_OF_CMD 4
+#define _NUM_OF_CMD 5
 #define _NUM_OF_SETCLEAR_SCMD 2
 
 //available  commands
-char * keyworld [] = {_CMD_HELP, _CMD_CLEAR, _CMD_SET, _CMD_CLR};
+char * keyworld [] = {_CMD_HELP, _CMD_CLEAR, _CMD_SET, _CMD_CLR, _CMD_LOGIN };
 // 'set/clear' command argements
 char * set_clear_key [] = {_SCMD_PB, _SCMD_PD};
 
@@ -98,6 +102,7 @@ void print_help (microrl_t* pThis)
 	print (pThis, "\tclear               - clear screen\n\r");
 	print (pThis, "\tset_port port pin   - set 1 port[pin] value, support only 'port_b' and 'port_d'\n\r");
 	print (pThis, "\tclear_port port pin - set 0 port[pin] value, support only 'port_b' and 'port_d'\n\r");
+        print (pThis, "\tlogin YOUR_LOGIN   - admin in this example\n\r");
 }
 
 //*****************************************************************************
@@ -125,6 +130,7 @@ void set_port_val (microrl_t* pThis, unsigned char * port, int pin, int val)
 // do what you want here, but don't write to argv!!! read only!!
 int execute (microrl_t* pThis, int argc, const char * const * argv)
 {
+        static int pass_word = 0;
 	int i = 0;
 	// just iterate through argv word and compare it with your commands
 	while (i < argc) {
@@ -132,7 +138,7 @@ int execute (microrl_t* pThis, int argc, const char * const * argv)
 			print (pThis, "microrl v");
 			print (pThis, MICRORL_LIB_VER);
 			print (pThis, " library PIC DEMO v");
-			print (pThis, _AVR_DEMO_VER);
+			print (pThis, _PIC_DEMO_VER);
 			print(pThis, "\n\r");
 			print_help (pThis);        // print help
 		} else if (strcmp (argv[i], _CMD_CLEAR) == 0) {
@@ -168,6 +174,32 @@ int execute (microrl_t* pThis, int argc, const char * const * argv)
 					print (pThis, "specify port, use Tab\n\r");
 				return 1;
 			}
+                }
+		else if (strcmp (argv[i], _CMD_LOGIN) == 0) {
+			if (++i < argc) {
+				if (strcmp (argv[i], _LOGIN) == 0) {
+					print(pThis, "Enter your password:\r\n");
+					microrl_set_echo (pThis, ONCE);
+					pass_word = 1;
+					return 1;
+				} else {
+					print(pThis, "Wrong login name. try again.\r\n");
+					return 1;
+				}
+			} else {
+				print(pThis, "Enter your login after command login.\r\n");
+				return 1;
+			}
+		} else if (pass_word == 1) {
+				if (strcmp(argv[i], _PASSWORD) == 0) {
+					print(pThis, "Grate You Log In!!!\r\n");
+					pass_word = 0;
+					return 1;
+				} else {
+					print(pThis, "Wrong password, try log in again.\r\n");
+					pass_word = 0;
+					return 1;
+				}
 		} else {
 			print (pThis, "command: '");
 			print (pThis, (char*)argv[i]);
