@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <string.h>
 #include "../../src/microrl.h"
+#include "example_misc.h"
 
 //*****************************************************************************
 //dummy function, no need on linux-PC
@@ -13,8 +14,9 @@ void init (void){
 
 //*****************************************************************************
 // print callback for microrl library
-void print (void * pThis, const char * str)
+void print (microrl_t * pThis, const char * str)
 {
+	(void) pThis; //unused in this example.
 	fprintf (stdout, "%s", str);
 }
 
@@ -69,7 +71,7 @@ int val;
 
 
 //*****************************************************************************
-void print_help (void * pThis)
+void print_help (microrl_t * pThis)
 {
 	print (pThis, "Use TAB key for completion\n\rCommand:\n\r");
 	print (pThis, "\tversion {microrl | demo} - print version of microrl lib or version of this demo src\n\r");
@@ -84,7 +86,7 @@ void print_help (void * pThis)
 //*****************************************************************************
 // execute callback for microrl library
 // do what you want here, but don't write to argv!!! read only!!
-int execute (void * pThis, int argc, const char * const * argv)
+int execute (microrl_t * pThis, int argc, const char * const * argv)
 {
   static int pass_word = 0;
 	int i = 0;
@@ -166,9 +168,11 @@ int execute (void * pThis, int argc, const char * const * argv)
 #ifdef _USE_COMPLETE
 //*****************************************************************************
 // completion callback for microrl library
-char ** complet (void * pThis, int argc, const char * const * argv)
+char ** complet (microrl_t * pThis, int argc, const char * const * argv)
 {
+	(void) pThis; //unused in this example.
 	int j = 0;
+
 
 	compl_world [0] = NULL;
 
@@ -205,7 +209,7 @@ char ** complet (void * pThis, int argc, const char * const * argv)
 #endif
 
 //*****************************************************************************
-void sigint (void * pThis)
+void sigint (microrl_t * pThis)
 {
 	print (pThis, "^C catched!\n\r");
 }

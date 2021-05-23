@@ -537,12 +537,12 @@ static void microrl_delete (microrl_t * pThis)
 #ifdef _USE_COMPLETE
 
 //*****************************************************************************
-static int common_len (char ** arr)
+static size_t common_len (char ** arr)
 {
-	int i;
+	size_t i;
 	int j;
 	char *shortest = arr[0];
-	int shortlen = strlen(shortest);
+	size_t shortlen = strlen(shortest);
 
 	for (i = 0; arr[i] != NULL; ++i)
 		if (strlen(arr[i]) < shortlen) {
@@ -578,7 +578,7 @@ static void microrl_get_complite (microrl_t * pThis)
 #endif
 	if (compl_token[0] != NULL) {
 		int i = 0;
-		int len;
+		size_t len;
 		int pos = pThis->cursor;
 
 		if (compl_token[1] == NULL) {

@@ -2,7 +2,7 @@ DEBUG     = -g
 
 CC        = gcc
 CPPFLAGS  = $(DEBUG) 
-CCFLAGS   = -Wall $(DEBUG) -std=gnu99 -I . 
+CCFLAGS   = -Wall -Wextra $(DEBUG) -std=gnu99 -I . 
 LDFLAGS   = 
 
 TARGET=microrl_test

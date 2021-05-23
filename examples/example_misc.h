@@ -1,6 +1,10 @@
 #ifndef _MICRORL_MISC_H_
 #define _MICRORL_MISC_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*
 Platform independent interface for implementing some specific function
 for AVR, linux PC or ARM
@@ -23,5 +27,9 @@ char ** complet (microrl_t * pThis, int argc, const char * const * argv);
 
 // ctrl+c callback
 void sigint (microrl_t * pThis);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

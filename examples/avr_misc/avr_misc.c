@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <avr/io.h>
+#include "example_misc.h"
 
 /*
 AVR platform specific implementation routines (for Atmega8, rewrite for your MC)
@@ -50,7 +51,7 @@ void init (void)
 //}
 
 //*****************************************************************************
-void print (void * pThis, const char * str)
+void print (microrl_t * pThis, const char * str)
 {
 	int i = 0;
 	while (str [i] != 0) {
@@ -67,7 +68,7 @@ char get_char (void)
 }
 
 //*****************************************************************************
-void print_help (void * pThis, void)
+void print_help (microrl_t * pThis)
 {
 	print (pThis, "Use TAB key for completion\n\rCommand:\n\r");
 	print (pThis, "\tclear               - clear screen\n\r");
@@ -76,15 +77,15 @@ void print_help (void * pThis, void)
 }
 
 //*****************************************************************************
-void set_port_val (void * pThis, unsigned char * port, int pin, int val)
+void set_port_val (microrl_t * pThis, unsigned char * port, int pin, int val)
 {
 	if ((*port == PORTD) && (pin < 2) && (pin > 7)) {
-		print (pThis, "only 2..7 pin avialable for PORTD\n\r");
+		print (pThis, "only 2..7 pin available for PORTD\n\r");
 		return;
 	}
 	
 	if ((*port == PORTB) && (pin > 5)) {
-		print (pThis, "only 0..5 pin avialable for PORTB\n\r");
+		print (pThis, "only 0..5 pin available for PORTB\n\r");
 		return;
 	}
 
@@ -98,7 +99,7 @@ void set_port_val (void * pThis, unsigned char * port, int pin, int val)
 //*****************************************************************************
 // execute callback for microrl library
 // do what you want here, but don't write to argv!!! read only!!
-int execute (void * pThis, int argc, const char * const * argv)
+int execute (microrl_t * pThis, int argc, const char * const * argv)
 {
 	int i = 0;
 	// just iterate through argv word and compare it with your commands
@@ -108,7 +109,7 @@ int execute (void * pThis, int argc, const char * const * argv)
 			print (pThis, MICRORL_LIB_VER);
 			print (pThis, " library AVR DEMO v");
 			print (pThis, _AVR_DEMO_VER);
-			print("\n\r");
+			print (pThis, "\n\r");
 			print_help (pThis);        // print help
 		} else if (strcmp (argv[i], _CMD_CLEAR) == 0) {
 			print (pThis, "\033[2J");    // ESC seq for clear entire screen
@@ -156,7 +157,7 @@ int execute (void * pThis, int argc, const char * const * argv)
 #ifdef _USE_COMPLETE
 //*****************************************************************************
 // completion callback for microrl library
-char ** complet (void * pThis, int argc, const char * const * argv)
+char ** complet (microrl_t * pThis, int argc, const char * const * argv)
 {
 	int j = 0;
 
@@ -196,7 +197,7 @@ char ** complet (void * pThis, int argc, const char * const * argv)
 #endif
 
 //*****************************************************************************
-void sigint (void * pThis)
+void sigint (microrl_t * pThis)
 {
 	print (pThis, "^C catched!\n\r");
 }
