@@ -81,7 +81,7 @@ If not defined, use my own number conversion code, it's save about 800 byte of
 code size on AVR (avr-gcc build).
 Try to build with and without, and compare total code size for tune library.
 */
-#define _USE_LIBC_STDIO
+//#define _USE_LIBC_STDIO
 
 /*
 Use a single carriage return character to move the cursor to the left margin
@@ -103,10 +103,12 @@ already initialize and ready to print message */
 
 /*
 New line symbol */
-#define _ENDL_LF
+//#define _ENDL_LF
+#define _ENDL_CR
+//#define _ENDL_CRLF
 
 #if defined(_ENDL_CR)
-#define ENDL "\r"
+#define ENDL "\r\n"
 #elif defined(_ENDL_CRLF)
 #define ENDL "\r\n"
 #elif defined(_ENDL_LF)
