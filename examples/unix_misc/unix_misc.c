@@ -53,11 +53,11 @@ char get_char (void)
 	#define _SCMD_MRL  "microrl"
 	#define _SCMD_DEMO "demo"
 
-#define _NUM_OF_CMD 6
+#define _NUM_OF_CMD 7
 #define _NUM_OF_VER_SCMD 2
 
 //available  commands
-char * keyworld [] = {_CMD_HELP, _CMD_CLEAR, _CMD_LIST, _CMD_NAME, _CMD_VER, _CMD_LISP};
+char * keyworld [] = {_CMD_HELP, _CMD_CLEAR, _CMD_LIST, _CMD_LOGIN, _CMD_NAME, _CMD_VER, _CMD_LISP};
 // version subcommands
 char * ver_keyworld [] = {_SCMD_MRL, _SCMD_DEMO};
 
