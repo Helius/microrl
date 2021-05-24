@@ -16,7 +16,7 @@ BUGS and TODO:
 #include <stdio.h>
 #define DBG(...) fprintf(stderr, "\033[33m");fprintf(stderr,__VA_ARGS__);fprintf(stderr,"\033[0m");
 #else
-#define DBG(...) 
+//#define DBG(...) 
 #endif
 
 char * prompt_default = _PROMPT_DEFAULT;
@@ -452,6 +452,9 @@ static int escape_process (microrl_t * pThis, char ch)
 	if (ch == '[') {
 		pThis->escape_seq = _ESC_BRACKET;
 		return 0;
+	} else if (ch == 'O') {
+		pThis->escape_seq = _ESC_BRACKET2;
+		return 0;
 	} else if (pThis->escape_seq == _ESC_BRACKET) {
 		if (ch == 'A') {
 #ifdef _USE_HISTORY
@@ -477,12 +480,26 @@ static int escape_process (microrl_t * pThis, char ch)
 				pThis->cursor--;
 			}
 			return 1;
-		} else if (ch == '7') {
+		} else if ((ch == '1') || (ch == '7')) {
 			pThis->escape_seq = _ESC_HOME;
 			return 0;
 		} else if (ch == '8') {
 			pThis->escape_seq = _ESC_END;
 			return 0;
+		} else if (ch == 'H') {
+			terminal_move_cursor (pThis, -pThis->cursor);
+			pThis->cursor = 0;
+			return 1;
+		} else if (ch == 'F') {
+			terminal_move_cursor (pThis, pThis->cmdlen-pThis->cursor);
+			pThis->cursor = pThis->cmdlen;
+			return 1;
+		}
+	} else if (pThis->escape_seq == _ESC_BRACKET2) {
+		if (ch == 'F') {
+			terminal_move_cursor (pThis, pThis->cmdlen-pThis->cursor);
+			pThis->cursor = pThis->cmdlen;
+			return 1;
 		}
 	} else if (ch == '~') {
 		if (pThis->escape_seq == _ESC_HOME) {

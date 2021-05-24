@@ -56,6 +56,7 @@ extern "C" {
 #define _ESC_BRACKET  1
 #define _ESC_HOME     2
 #define _ESC_END      3
+#define _ESC_BRACKET2  4
 
 #ifdef _USE_HISTORY
 // history struct, contain internal variable
