@@ -40,7 +40,7 @@ Main goal is to write compact, small memory consuming but powerful interfaces, w
 
 ## echo
  - use "microrl_set_echo" function to turn on or turn off echo.
- - could be used to print * instead of real characters. 
+ - could be used to print * instead of real characters.
 
 # 3. SRC STRUCTURE
 
@@ -51,6 +51,7 @@ src/               - library source
   config.h         - customisation config-file
 examples/          - library usage examples
   avr_misc/        - avr specific routines for avr example
+  pic_lf4520_misc/ - PIC specific routines for PIC18F4520 chip
   unix_misc/       - unix specific routines for desktop example
   esp8266_example/ - example for esp8266 (platformio) - echo feature
   example.c        - common part of example, for build  demonstrating example for various platform
@@ -61,7 +62,7 @@ examples/          - library usage examples
 
 # 4. INSTALL
 
-Requirements: 
+Requirements:
 
 C compiler with support for C99 standard (GNU GCC, Keil, IAR) with standard C library (libc, uClibc or other compatible). Also you have to implement several routines in your own code for library to work.
 
@@ -83,7 +84,7 @@ For example on linux PC print callback may be:
 
 4. If you want completion support if user press TAB key, call `microrl_set_complete_callback()` and set you callback. It also give `argc` and `argv` arguments, so iterate through it and return set of complete variants.
 
-5. Look at `config.h` file, for tune library for you requiring.
+5. Look at `microrl_config.h` file, for tune library for you requiring.
 
 6. Now you just call `microrl_insert_char()` on each char received from input stream (usart, network, etc).
 
