@@ -90,6 +90,11 @@ int execute (microrl_t * pThis, int argc, const char * const * argv)
 {
   static int pass_word = 0;
 	int i = 0;
+	/*fprintf(stdout, "execute argc = %d\n", argc);
+	for(int index = 0; index < argc; index++)
+	{
+		fprintf(stdout, "argv[%d] = '%s'\n", index, argv[index]);
+	}*/
 	// just iterate through argv word and compare it with your commands
 	while (i < argc) {
 		if (strcmp (argv[i], _CMD_HELP) == 0) {
@@ -147,7 +152,7 @@ int execute (microrl_t * pThis, int argc, const char * const * argv)
 			}
 		} else if (pass_word == 1) {
 				if (strcmp(argv[i], _PASSWORD) == 0) {
-					print(pThis, "Grate You Log In!!!\r\n");
+					print(pThis, "Great You Log In!!!\r\n");
 					pass_word = 0;
 					return 1;
 				} else {

@@ -3,7 +3,6 @@ Author: Samoylov Eugene aka Helius (ghelius@gmail.com)
 BUGS and TODO:
 -- rewrite history for use more than 256 byte buffer
 */
-
 #include <string.h>
 #include <ctype.h>
 #include <stdlib.h>
@@ -12,7 +11,13 @@ BUGS and TODO:
 #include <stdio.h>
 #endif
 
-//#define DBG(...) fprintf(stderr, "\033[33m");fprintf(stderr,__VA_ARGS__);fprintf(stderr,"\033[0m");
+//#define DBG_TRACE
+#ifdef DBG_TRACE
+#include <stdio.h>
+#define DBG(...) fprintf(stderr, "\033[33m");fprintf(stderr,__VA_ARGS__);fprintf(stderr,"\033[0m");
+#else
+#define DBG(...) 
+#endif
 
 char * prompt_default = _PROMPT_DEFAULT;
 
@@ -215,8 +220,8 @@ static int split (microrl_t * pThis, int limit, char const ** tkn_arr)
 	iq = 0;
 #endif
 	while (1) {
-		// go to the first NOT whitespace (not zerro for us)
-		while ((pThis->cmdline [ind] == '\0') && (ind < limit)) {
+		// go to the first NOT whitespace
+		while (((pThis->cmdline [ind] == ' ')||(pThis->cmdline [ind] == '\0')) && (ind < limit)) {
 			ind++;
 		}
 		if (!(ind < limit)) return i;
@@ -238,15 +243,24 @@ static int split (microrl_t * pThis, int limit, char const ** tkn_arr)
 #endif
 			return -1;
 		}
-		// go to the first whitespace (zerro for us)
+		// go to the first whitespace
 		while (ind < limit) {
-			if (pThis->cmdline [ind] == '\0') {
+			if ((pThis->cmdline [ind] == ' ') || (pThis->cmdline [ind] == '\0')) {
 #ifdef _USE_QUOTING
 				if (!quote)
 #endif
+				{
+					pThis->cmdline [ind] = '\0';
+					//ind++;
 					break;
+        }
 #ifdef _USE_QUOTING
-				pThis->cmdline [ind] = ' ';
+				else if (pThis->cmdline [ind] == '\0') {
+					restore (pThis);
+					return -1;
+				}
+#endif 
+#ifdef _USE_QUOTING
 			} else if (pThis->cmdline [ind] == quote) {
 				if (pThis->cmdline [ind + 1] != '\0') {
 					restore (pThis);
@@ -277,7 +291,7 @@ static int split (microrl_t * pThis, int limit, char const ** tkn_arr)
 //*****************************************************************************
 void microrl_erase_prompt(microrl_t *pThis)
 {
-    pThis->print(pThis, "\033[999D\033[2K");
+	pThis->print(pThis, "\033[999D\033[2K");
 }
 
 //*****************************************************************************
@@ -289,7 +303,7 @@ inline static void print_prompt (microrl_t * pThis)
 //*****************************************************************************
 inline static void terminal_backspace (microrl_t * pThis)
 {
-		pThis->print (pThis, "\033[D \033[D");
+	pThis->print (pThis, "\033[D \033[D");
 }
 
 //*****************************************************************************
@@ -363,7 +377,10 @@ static void terminal_print_line (microrl_t * pThis, int pos, int reset)
 #endif
 		}
 		for (int i = pos; i < pThis->cmdlen; i++) {
-			*j++ = (pThis->cmdline [i] == '\0') ? ' ' : pThis->cmdline [i];
+			*j = (pThis->cmdline [i] == '\0') ? ' ' : pThis->cmdline [i];
+			if ((i >= pThis->start_password) & (ECHO_IS_ONCE()))
+				*j = '*';
+			j++;
 			if (j-str == sizeof(str)-1) {
 				*j = '\0';
 				pThis->print (pThis, str);
@@ -380,7 +397,7 @@ static void terminal_print_line (microrl_t * pThis, int pos, int reset)
 		*j++ = 'K';
 		generate_move_cursor (j, pThis->cursor - pThis->cmdlen);
 		pThis->print (pThis, str);
-  }
+	}
 }
 
 //*****************************************************************************
@@ -438,12 +455,14 @@ static int escape_process (microrl_t * pThis, char ch)
 	} else if (pThis->escape_seq == _ESC_BRACKET) {
 		if (ch == 'A') {
 #ifdef _USE_HISTORY
-			hist_search (pThis, _HIST_UP);
+			if (!ECHO_IS_ONCE())
+				hist_search (pThis, _HIST_UP);
 #endif
 			return 1;
 		} else if (ch == 'B') {
 #ifdef _USE_HISTORY
-			hist_search (pThis, _HIST_DOWN);
+			if (!ECHO_IS_ONCE())
+				hist_search (pThis, _HIST_DOWN);
 #endif
 			return 1;
 		} else if (ch == 'C') {
@@ -495,9 +514,6 @@ static int microrl_insert_text (microrl_t * pThis, char * text, int len)
 						 pThis->cmdlen - pThis->cursor);
 		for (i = 0; i < len; i++) {
 			pThis->cmdline [pThis->cursor + i] = text [i];
-			if (pThis->cmdline [pThis->cursor + i] == ' ') {
-				pThis->cmdline [pThis->cursor + i] = 0;
-			}
 		}
 		pThis->cursor += len;
 		pThis->cmdlen += len;
@@ -615,26 +631,30 @@ void new_line_handler(microrl_t * pThis)
 	terminal_newline (pThis);
 
 #ifdef _USE_HISTORY
-	if ((pThis->cmdlen > 0) && (ECHO_IS_ON()))
+	if ((pThis->cmdlen > 0) && (!ECHO_IS_ONCE()))
 		hist_save_line (&pThis->ring_hist, pThis->cmdline, pThis->cmdlen);
 #endif
 	if (ECHO_IS_ONCE()){
 		microrl_set_echo(pThis, ON);
 		pThis->start_password = -1;
-	}
-
-	status = split (pThis, pThis->cmdlen, tkn_arr);
-	if (status == -1){
-		//          pThis->print ("ERROR: Max token amount exseed\n");
+		//DBG("v ==> %s\n", pThis->cmdline);
+		if (pThis->execute != NULL) {
+			tkn_arr[0] = pThis->cmdline;
+			pThis->execute(pThis, 1, tkn_arr);
+		}
+	}  else {
+		status = split (pThis, pThis->cmdlen, tkn_arr);
+		if (status == -1){
+			pThis->print (pThis, "ERROR:too many tokens");
 #ifdef _USE_QUOTING
-		pThis->print (pThis, "ERROR:too many tokens or invalid quoting");
-#else
-		pThis->print (pThis, "ERROR:too many tokens");
+			pThis->print (pThis, " or invalid quoting");
 #endif
-		pThis->print (pThis, ENDL);
-	}
-	if ((status > 0) && (pThis->execute != NULL))
-		pThis->execute (pThis, status, tkn_arr);
+			pThis->print (pThis, ENDL);
+		}
+	
+		if ((status > 0) && (pThis->execute != NULL))
+			pThis->execute (pThis, status, tkn_arr);
+  }
 	print_prompt (pThis);
 	pThis->cmdlen = 0;
 	pThis->cursor = 0;
@@ -648,6 +668,7 @@ void new_line_handler(microrl_t * pThis)
 
 void microrl_insert_char (microrl_t * pThis, int ch)
 {
+  //DBG(">%d (0x%x) \n", ch, ch);
 #ifdef _USE_ESC_SEQ
 	if (pThis->escape) {
 		if (escape_process(pThis, ch))
@@ -717,13 +738,15 @@ void microrl_insert_char (microrl_t * pThis, int ch)
 			//-----------------------------------------------------
 			case KEY_DLE: //^P
 #ifdef _USE_HISTORY
-			hist_search (pThis, _HIST_UP);
+			if (!ECHO_IS_ONCE())
+				hist_search (pThis, _HIST_UP);
 #endif
 			break;
 			//-----------------------------------------------------
 			case KEY_SO: //^N
 #ifdef _USE_HISTORY
-			hist_search (pThis, _HIST_DOWN);
+			if (!ECHO_IS_ONCE())
+				hist_search (pThis, _HIST_DOWN);
 #endif
 			break;
 			//-----------------------------------------------------
@@ -761,9 +784,12 @@ void microrl_insert_char (microrl_t * pThis, int ch)
 				break;
 			if (microrl_insert_text (pThis, (char*)&ch, 1)) {
 				if (pThis->cursor == pThis->cmdlen) {
-					if (!ECHO_IS_OFF() && !ECHO_IS_ONCE()) {
+					if (!ECHO_IS_OFF()) {
 						char nch [] = {0,0};
-						nch[0] = ch;
+						if (ECHO_IS_ONCE())
+							nch[0] = '*';
+						else
+							nch[0] = ch;
 						pThis->print (pThis, nch);
 					}
 				} else {

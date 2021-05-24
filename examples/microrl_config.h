@@ -81,7 +81,7 @@ If not defined, use my own number conversion code, it's save about 800 byte of
 code size on AVR (avr-gcc build).
 Try to build with and without, and compare total code size for tune library.
 */
-//#define _USE_LIBC_STDIO
+#define _USE_LIBC_STDIO
 
 /*
 Use a single carriage return character to move the cursor to the left margin
