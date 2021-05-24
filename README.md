@@ -40,7 +40,7 @@ Main goal is to write compact, small memory consuming but powerful interfaces, w
 
 ## echo
  - use "microrl_set_echo" function to turn on or turn off echo.
-[//] - could be used to print * instead of real characters. (not working for now)
+ - could be used to print * instead of real characters. 
 
 # 3. SRC STRUCTURE
 
