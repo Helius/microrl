@@ -708,7 +708,8 @@ void microrl_insert_char (microrl_t * pThis, int ch)
 			//-----------------------------------------------------
 #ifdef _USE_COMPLETE
 			case KEY_HT:
-				microrl_get_complite (pThis);
+				if (!ECHO_IS_ONCE())
+					microrl_get_complite (pThis);
 			break;
 #endif
 			//-----------------------------------------------------
