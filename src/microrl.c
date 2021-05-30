@@ -825,3 +825,7 @@ void microrl_insert_char (microrl_t * pThis, int ch)
 void microrl_set_echo (microrl_t * pThis, echo_t echo) {
 	pThis->echo = echo;
 }
+
+echo_t microrl_get_echo (microrl_t * pThis) {
+	return pThis->echo;
+}

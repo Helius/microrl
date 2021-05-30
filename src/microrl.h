@@ -127,6 +127,9 @@ void microrl_init (microrl_t * pThis, void (*print)(microrl_t* pThis, const char
 // use ON and OFF for turning echo off and on manualy.
 void microrl_set_echo (microrl_t * pThis, echo_t echo);
 
+// get echo mode (ON/OFF/ONCE)
+echo_t microrl_get_echo (microrl_t * pThis);
+
 // set pointer to callback complition func, that called when user press 'Tab'
 // callback func description:
 //   param: argc - argument count, argv - pointer array to token string
