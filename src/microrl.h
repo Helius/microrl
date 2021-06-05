@@ -67,6 +67,7 @@ typedef struct {
 	int end;
 	int cur;
 } ring_history_t;
+
 #endif
 
 #ifdef _USE_QUOTING
@@ -153,10 +154,13 @@ void microrl_insert_char (microrl_t * pThis, int ch);
 // clear the current line, possibly to print information for user
 void microrl_erase_prompt(microrl_t *pThis);
 
+#ifdef _USE_HISTORY
+void microrl_print_history (microrl_t * pThis);
+#endif
+
 // restore the previous prompt/line
 #define microrl_restore_prompt(pThis)  microrl_insert_char(pThis, KEY_DC2)
 #ifdef __cplusplus
 }
 #endif
-
 #endif

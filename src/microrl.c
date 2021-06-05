@@ -179,12 +179,84 @@ static int hist_restore_line (ring_history_t * pThis, char * line, int dir)
 	}
 	return -1;
 }
+
+static inline int microrl_get_histo_index(int index)
+{
+	int r;
+	if (index >= _RING_HISTORY_LEN)
+		r = index - _RING_HISTORY_LEN;
+	else
+		r = index;
+	return r;
+}
+
+static void microrl_print_number(microrl_t * pThis, int nb)
+{
+	char str[10];
+#ifdef _USE_LIBC_STDIO
+	snprintf (str, 10, "%d", nb);
+	pThis->print(pThis, str);
+#else
+	char tmp_str [10];
+	char* pstr;
+
+	if (nb == 0) {
+		pThis->print(pThis, "0");
+	} else {
+	pstr = (char*) &str;
+	int i = 0, j;
+
+	while ((nb > 0) && (i < 9)) {
+		tmp_str[i++] = (nb % 10) + '0';
+		nb /=10;
+	}
+	tmp_str[i] = '\0';
+
+	for (j = 0; j < i; ++j)
+		*pstr++ = tmp_str [i-j-1];
+	*pstr = '\0';
+	pThis->print(pThis, str);
+	}
 #endif
+}
 
 
+static inline void microrl_display_histo_number(microrl_t* pThis, int number)
+{
+		pThis->print(pThis, " ");
+		microrl_print_number(pThis, number);
+		pThis->print(pThis, " ");
+}
 
+void microrl_print_history (microrl_t * pThis)
+{
+	ring_history_t* pHist = &pThis->ring_hist;
+	int i;
+	int j;
+	int size;
+	int hist_number;
+	char temp[2];
+	temp[1] = '\0';
+	hist_number = 0;
 
+	i = pHist->begin;
+	while (i != pHist->end) {
+		size = pHist->ring_buf[i];
+		i = microrl_get_histo_index(++i);
+		microrl_display_histo_number(pThis, hist_number++);
+		for(j = 0; j < size; j++) {
+			temp[0] = pHist->ring_buf[microrl_get_histo_index(i+j)];
+			if (temp[0] == '\0')
+				temp[0] = ' ';
+			pThis->print(pThis, temp);
+		}
 
+		pThis->print(pThis, ENDL);
+		i = microrl_get_histo_index(i+size);
+	}
+}
+
+#endif /* _USE_HISTORY */
 
 
 

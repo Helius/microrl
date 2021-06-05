@@ -44,6 +44,7 @@ char get_char (void)
 // definition commands word
 #define _CMD_HELP  "help"
 #define _CMD_CLEAR "clear"
+#define _CMD_HISTORY "history"
 #define _CMD_LIST  "list"
 #define _CMD_LISP  "lisp" // for demonstration completion on 'l + <TAB>'
 #define _CMD_LOGIN "login"
@@ -59,11 +60,11 @@ char get_char (void)
 	#define _SCMD_OFF "off"
 #define _NUM_OF_ECHO_SCMD 2
 
-#define _NUM_OF_CMD 8
+#define _NUM_OF_CMD 9
 #define _NUM_OF_VER_SCMD 2
 
 //available  commands
-char * keyworld [] = {_CMD_HELP, _CMD_CLEAR, _CMD_ECHO, _CMD_LIST, _CMD_LOGIN, _CMD_NAME, _CMD_VER, _CMD_LISP};
+char * keyworld [] = {_CMD_HELP, _CMD_CLEAR, _CMD_HISTORY, _CMD_ECHO, _CMD_LIST, _CMD_LOGIN, _CMD_NAME, _CMD_VER, _CMD_LISP};
 // version subcommands
 char * ver_keyworld [] = {_SCMD_MRL, _SCMD_DEMO};
 
@@ -86,6 +87,7 @@ void print_help (microrl_t * pThis)
 	print (pThis, "\tversion {microrl | demo} - print version of microrl lib or version of this demo src\n\r");
 	print (pThis, "\thelp  - this message\n\r");
 	print (pThis, "\tclear - clear screen\n\r");
+	print (pThis, "\thistory - display history\n\r");
 	print (pThis, "\tlist  - list all commands in tree\n\r");
 	print (pThis, "\tlogin YOUR_LOGIN   - admin in this example\n\r");
 	print (pThis, "\tname [string] - print 'name' value if no 'string', set name value to 'string' if 'string' present\n\r");
@@ -144,6 +146,9 @@ int execute (microrl_t * pThis, int argc, const char * const * argv)
 				print (pThis, keyworld[i]);
 				print (pThis, "\n\r");
 			}
+		}
+		else if (strcmp (argv[i], _CMD_HISTORY) == 0) {
+			microrl_print_history(pThis);
 		}
 		else if (strcmp (argv[i], _CMD_LOGIN) == 0) {
 			if (++i < argc) {
