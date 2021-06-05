@@ -31,6 +31,8 @@ Main goal is to write compact, small memory consuming but powerful interfaces, w
 ## history
 
 - Static ring buffer history for memory saving. Number of commands saved to history depends from commands length and buffer size (defined in config)
+- can display list of historic commands
+- can execute again previous historic commands (e.g >!<historic number>)
 
 ## completion
  - via completion callback

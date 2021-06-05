@@ -113,6 +113,20 @@ static void hist_save_line (ring_history_t * pThis, char * line, int len)
 }
 
 //*****************************************************************************
+// copy history line at index into line
+static void hist_copy_line_from_index(ring_history_t * pThis, int index, char* line)
+{
+	int header = index;
+	if (pThis->ring_buf [header] + header < _RING_HISTORY_LEN) {
+		memcpy (line, pThis->ring_buf + header + 1, pThis->ring_buf[header]);
+	} else {
+		int part0 = _RING_HISTORY_LEN - header - 1;
+		memcpy (line, pThis->ring_buf + header + 1, part0);
+		memcpy (line + part0, pThis->ring_buf, pThis->ring_buf[header] - part0);
+	}
+}
+
+//*****************************************************************************
 // copy saved line to 'line' and return size of line
 static int hist_restore_line (ring_history_t * pThis, char * line, int dir)
 {
@@ -164,13 +178,7 @@ static int hist_restore_line (ring_history_t * pThis, char * line, int dir)
 					header -= _RING_HISTORY_LEN;
 				j++;
 			}
-			if (pThis->ring_buf [header] + header < _RING_HISTORY_LEN) {
-				memcpy (line, pThis->ring_buf + header + 1, pThis->ring_buf[header]);
-			} else {
-				int part0 = _RING_HISTORY_LEN - header - 1;
-				memcpy (line, pThis->ring_buf + header + 1, part0);
-				memcpy (line + part0, pThis->ring_buf, pThis->ring_buf[header] - part0);
-			}
+			hist_copy_line_from_index(pThis, header, line);
 			return pThis->ring_buf[header];
 		} else {
 			/* empty line */
@@ -223,9 +231,9 @@ static void microrl_print_number(microrl_t * pThis, int nb)
 
 static inline void microrl_display_histo_number(microrl_t* pThis, int number)
 {
-		pThis->print(pThis, " ");
-		microrl_print_number(pThis, number);
-		pThis->print(pThis, " ");
+	pThis->print(pThis, " ");
+	microrl_print_number(pThis, number);
+	pThis->print(pThis, " ");
 }
 
 void microrl_print_history (microrl_t * pThis)
@@ -242,7 +250,7 @@ void microrl_print_history (microrl_t * pThis)
 	i = pHist->begin;
 	while (i != pHist->end) {
 		size = pHist->ring_buf[i];
-		i = microrl_get_histo_index(++i);
+		i = microrl_get_histo_index(i+1);
 		microrl_display_histo_number(pThis, hist_number++);
 		for(j = 0; j < size; j++) {
 			temp[0] = pHist->ring_buf[microrl_get_histo_index(i+j)];
@@ -255,9 +263,27 @@ void microrl_print_history (microrl_t * pThis)
 		i = microrl_get_histo_index(i+size);
 	}
 }
-
 #endif /* _USE_HISTORY */
 
+#ifdef _USE_HISTORY_EXEC_PREV
+static int hist_get_start_offset(ring_history_t* pHist, int hist_index)
+{
+	int i;
+	int size;
+	int hist_number;
+	hist_number = 0;
+	i = pHist->begin;
+	while (i != pHist->end) {
+		if (hist_number == hist_index)
+			return i;
+
+		size = pHist->ring_buf[i];
+		i = microrl_get_histo_index(i+ 1 + size);
+		hist_number++;
+	}
+	return -1;
+}
+#endif /* _USE_HISTORY_EXEC_PREV */
 
 
 #ifdef _USE_QUOTING
@@ -712,6 +738,77 @@ static void microrl_get_complite (microrl_t * pThis)
 }
 #endif
 
+#ifdef _USE_HISTORY_EXEC_PREV
+
+int microrl_cp_histo_line(microrl_t* pThis, int indexHisto)
+{
+	int r;
+	int begin;
+
+	r = false;
+	begin = hist_get_start_offset(&pThis->ring_hist, indexHisto);
+	if (begin != -1) {
+		hist_copy_line_from_index(&pThis->ring_hist, begin, pThis->cmdline);
+		pThis->cmdlen = pThis->ring_hist.ring_buf[begin];
+		r = true;
+	}
+
+	return r;
+}
+
+static int microrl_histo_check_and_cp_previous(microrl_t* pThis)
+{
+	char digit[5];
+	int i;
+	int j;
+	int is_exec_histo;
+
+	memset(digit, '\0', 5);
+	j = 0;
+	i = 0;
+	is_exec_histo = false;
+
+	while (i < pThis->cmdlen) {
+		if (!is_exec_histo) {
+			if (pThis->cmdline[i] == '!') {
+				is_exec_histo = true;
+			} else {
+				break;
+			}
+		}
+		else
+		{
+			if ((pThis->cmdline[i] == ' ') || (pThis->cmdline[i] == '\0'))
+				break;
+			else if (j < 4) {
+				digit[j++] = pThis->cmdline[i];
+			} else {
+				//no more space...
+				is_exec_histo = false;
+				break;
+			}
+		}
+		i++;
+	}
+
+	if ((is_exec_histo == true) && (j > 0)) {
+		char* endStr;
+		int indexHisto = strtoul(digit, &endStr, 0);
+		if (*endStr == '\0') {
+			// can execute now...
+			is_exec_histo = microrl_cp_histo_line(pThis, indexHisto);
+		} else {
+			is_exec_histo = false;
+		}
+	} else
+		is_exec_histo = false;
+
+	return is_exec_histo;
+}
+
+#endif /* _USE_HISTORY_EXEC_PREV */
+
+
 //*****************************************************************************
 void new_line_handler(microrl_t * pThis)
 {
@@ -720,8 +817,13 @@ void new_line_handler(microrl_t * pThis)
 	terminal_newline (pThis);
 
 #ifdef _USE_HISTORY
-	if ((pThis->cmdlen > 0) && (!ECHO_IS_ONCE()))
-		hist_save_line (&pThis->ring_hist, pThis->cmdline, pThis->cmdlen);
+	if ((pThis->cmdlen > 0) && (!ECHO_IS_ONCE())) {
+#ifdef _USE_HISTORY_EXEC_PREV
+		//check if request a previous command
+		if (microrl_histo_check_and_cp_previous(pThis) == false)
+#endif /* _USE_HISTORY_EXEC_PREV */
+			hist_save_line (&pThis->ring_hist, pThis->cmdline, pThis->cmdlen);
+	}
 #endif
 	if (ECHO_IS_ONCE()){
 		microrl_set_echo(pThis, ON);

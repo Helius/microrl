@@ -57,6 +57,12 @@ set stored value to cmdline, if UP and DOWN key pressed. Using history add
 memory consuming, depends from _RING_HISTORY_LEN parametr */
 #define _USE_HISTORY
 
+/*Define it, if you wanna use the possibility to execute previous typed
+history string, by typing "IRin>!<history_number>" you can launch again the
+previously typed <history_number> command
+*/
+#define _USE_HISTORY_EXEC_PREV
+
 /*
 History ring buffer length, define static buffer size.
 For saving memory, each entered cmdline store to history in ring buffer,
@@ -124,6 +130,10 @@ New line symbol */
 
 #if _RING_HISTORY_LEN > 256
 #error "This history implementation (ring buffer with 1 byte iterator) allow 256 byte buffer size maximum"
+#endif
+
+#if defined _USE_HISTORY_EXEC_PREV && !defined _USE_HISTORY
+#error "_USE_HISTORY must be defined to have _USE_HISTORY_EXEC_PREV"
 #endif
 
 #endif
