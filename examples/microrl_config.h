@@ -5,8 +5,6 @@ Autor: Eugene Samoylov aka Helius (ghelius@gmail.com)
 #ifndef _MICRORL_CONFIG_H_
 #define _MICRORL_CONFIG_H_
 
-#define MICRORL_LIB_VER "1.5.1"
-
 /*********** CONFIG SECTION **************/
 /*
 Command line length, define cmdline buffer size. Set max number of chars + 1,
@@ -41,10 +39,29 @@ NULL to callback ptr and do not use it, but for memory saving tune,
 if you are not going to use it - disable this define.*/
 #define _USE_COMPLETE
 
+/*Define it, if you want to allow quoting command arguments to include spaces.
+Depends upon _QUOTED_TOKEN_NMB parameter */
+#define _USE_QUOTING
+
+/*
+Quoted token number, define max number of tokens allowed to be quoted.  If the
+number of quoted tokens typed in the command line exceeds this value, then
+prints message about it and the command line is not parsed and 'execute'
+callback is not called.
+Quoting protects whitespace, for example 2 quoted tokens:
+"IRin> set wifi 'Home Net' 'this is a secret'" */
+#define _QUOTED_TOKEN_NMB 2
+
 /*Define it, if you wanna use history. It s work's like bash history, and
 set stored value to cmdline, if UP and DOWN key pressed. Using history add
 memory consuming, depends from _RING_HISTORY_LEN parametr */
 #define _USE_HISTORY
+
+/*Define it, if you wanna use the possibility to execute previous typed
+history string, by typing "IRin>!<history_number>" you can launch again the
+previously typed <history_number> command
+*/
+#define _USE_HISTORY_EXEC_PREV
 
 /*
 History ring buffer length, define static buffer size.
@@ -55,17 +72,29 @@ small and embedded devices. Overhead is 2 char on each saved line*/
 #define _RING_HISTORY_LEN 64
 
 /*
+Size of the buffer used for piecemeal printing of part or all of the command
+line.  Allocated on the stack.  Must be at least 16. */
+#define _PRINT_BUFFER_LEN 40
+
+/*
 Enable Handling terminal ESC sequence. If disabling, then cursor arrow, HOME, END will not work,
 use Ctrl+A(B,F,P,N,A,E,H,K,U,C) see README, but decrease code memory.*/
 #define _USE_ESC_SEQ
 
 /*
-Use snprintf from you standard complier library, but it gives some overhead.
-If not defined, use my own u16int_to_str variant, it's save about 800 byte of code size
-on AVR (avr-gcc build).
+Use sprintf from you standard complier library, but it gives some overhead.
+If not defined, use my own number conversion code, it's save about 800 byte of
+code size on AVR (avr-gcc build).
 Try to build with and without, and compare total code size for tune library.
 */
 #define _USE_LIBC_STDIO
+
+/*
+Use a single carriage return character to move the cursor to the left margin
+rather than moving left by a large number.  This reduces the number of
+characters sent to the terminal, but should be left undefined if the terminal
+will also simulate a linefeed when it receives the carriage return. */
+#define _USE_CARRIAGE_RETURN
 
 /*
 Enable 'interrupt signal' callback, if user press Ctrl+C */
@@ -81,6 +110,8 @@ already initialize and ready to print message */
 /*
 New line symbol */
 #define _ENDL_LF
+//#define _ENDL_CR
+//#define _ENDL_CRLF
 
 #if defined(_ENDL_CR)
 #define ENDL "\r"
@@ -99,6 +130,10 @@ New line symbol */
 
 #if _RING_HISTORY_LEN > 256
 #error "This history implementation (ring buffer with 1 byte iterator) allow 256 byte buffer size maximum"
+#endif
+
+#if defined _USE_HISTORY_EXEC_PREV && !defined _USE_HISTORY
+#error "_USE_HISTORY must be defined to have _USE_HISTORY_EXEC_PREV"
 #endif
 
 #endif
