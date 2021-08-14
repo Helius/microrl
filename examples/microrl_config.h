@@ -39,8 +39,7 @@ NULL to callback ptr and do not use it, but for memory saving tune,
 if you are not going to use it - disable this define.*/
 #define _USE_COMPLETE
 
-/*Define it, if you want to allow quoting command arguments to include spaces.
-Depends upon _QUOTED_TOKEN_NMB parameter */
+/*Define it, if you want to allow quoting command arguments to include spaces.*/
 #define _USE_QUOTING
 
 /*Define it, if you wanna use history. It s work's like bash history, and
