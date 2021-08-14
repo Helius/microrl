@@ -105,9 +105,6 @@ struct microrl {
 	char cmdline [_COMMAND_LINE_LEN];  // cmdline buffer
 	int cmdlen;                        // last position in command line
 	int cursor;                        // input cursor
-#ifdef _USE_QUOTING
-	quoted_token_t quotes[_QUOTED_TOKEN_NMB];// pointers to quoted tokens
-#endif
 	int (*execute) (microrl_t* pThis, int argc, const char * const * argv );            // ptr to 'execute' callback
 	char ** (*get_completion) (microrl_t* pThis, int argc, const char * const * argv ); // ptr to 'completion' callback
 	void (*print) (microrl_t* pThis, const char *);                                     // ptr to 'print' callback

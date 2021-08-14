@@ -285,106 +285,113 @@ static int hist_get_start_offset(ring_history_t* pHist, int hist_index)
 }
 #endif /* _USE_HISTORY_EXEC_PREV */
 
-
+typedef enum microl_decode_state_ {
+	IDLE,
+	WORD,
 #ifdef _USE_QUOTING
-//*****************************************************************************
-// restore end quote marks in cmdline
-static void restore (microrl_t * pThis)
-{
-	int iq;
-	for (iq = 0; iq < _QUOTED_TOKEN_NMB; ++iq) {
-		if (pThis->quotes[iq].end == 0)
-			break;
-		*pThis->quotes[iq].end = *pThis->quotes[iq].begin;
-		pThis->quotes[iq].begin = 0;
-		pThis->quotes[iq].end = 0;
-	}
-}
-#endif
+	WORD_WITH_QUOTE_BEGIN,
+	WORD_WITH_QUOTE_WORD,
+#endif /* _USE_QUOTING */
+} microl_decode_state_t;
 
 //*****************************************************************************
 // split cmdline to tkn array and return nmb of token
-static int split (microrl_t * pThis, int limit, char const ** tkn_arr)
+static int split(microrl_t* pThis, int limit, char const ** tkn_array)
 {
-	int i = 0;
-	int ind = 0;
-#ifdef _USE_QUOTING
-	int iq = 0;
-	char quote = 0;
-	for (iq = 0; iq < _QUOTED_TOKEN_NMB; ++iq) {
-		pThis->quotes[iq].begin = 0;
-		pThis->quotes[iq].end = 0;
-	}
-	iq = 0;
-#endif
-	while (1) {
-		// go to the first NOT whitespace
-		while (((pThis->cmdline [ind] == ' ')||(pThis->cmdline [ind] == '\0')) && (ind < limit)) {
-			ind++;
-		}
-		if (!(ind < limit)) return i;
-#ifdef _USE_QUOTING
-		if (pThis->cmdline [ind] == '\'' || pThis->cmdline [ind] == '"') {
-			if (iq >= _QUOTED_TOKEN_NMB) {
-				restore (pThis);
-				return -1;
-			}
-			quote = pThis->cmdline [ind];
-			pThis->quotes[iq].begin = pThis->cmdline + ind;
-			ind++;
-		}
-#endif
-		tkn_arr[i++] = pThis->cmdline + ind;
-		if (i >= _COMMAND_TOKEN_NMB) {
-#ifdef _USE_QUOTING
-			restore (pThis);
-#endif
-			return -1;
-		}
-		// go to the first whitespace
-		while (ind < limit) {
-			if ((pThis->cmdline [ind] == ' ') || (pThis->cmdline [ind] == '\0')) {
-#ifdef _USE_QUOTING
-				if (!quote)
-#endif
-				{
-					pThis->cmdline [ind] = '\0';
-					//ind++;
-					break;
-        }
-#ifdef _USE_QUOTING
-				else if (pThis->cmdline [ind] == '\0') {
-					restore (pThis);
-					return -1;
-				}
-#endif 
-#ifdef _USE_QUOTING
-			} else if (pThis->cmdline [ind] == quote) {
-				if (pThis->cmdline [ind + 1] != '\0') {
-					restore (pThis);
-					return -1;
-				}
-				quote = 0;
-				pThis->quotes[iq++].end = pThis->cmdline + ind;
-				pThis->cmdline [ind++] = '\0';
-				break;
-#endif
-			}
-			ind++;
-		}
-		if (!(ind < limit)) {
-#ifdef _USE_QUOTING
-			if (quote) {
-				restore (pThis);
-				return -1;
-			}
-#endif
-			return i;
-		}
-	}
-	return i;
-}
+	microl_decode_state_t decode_state;
+	int cmdline_index = 0;
+	int nb_token;
+	nb_token = 0;
+	decode_state = IDLE;
+	cmdline_index = 0;
 
+#ifdef _USE_QUOTING
+	char current_quote;
+#endif /* _USE_QUOTING */
+
+	while (cmdline_index < limit) {
+		switch(decode_state) {
+			case IDLE:
+				switch(pThis->cmdline [cmdline_index]) {
+					case ' ':
+					case '\0':
+						//keep in IDLE state and wait for a char
+						break;
+
+#ifdef _USE_QUOTING         
+					case '"':
+					case '\'':
+						decode_state = WORD_WITH_QUOTE_BEGIN;
+						current_quote = pThis->cmdline [cmdline_index];
+						break;
+#endif /* _USE_QUOTING */
+
+					default:
+						decode_state = WORD;
+						tkn_array[nb_token++] = &pThis->cmdline [cmdline_index];
+						if (nb_token >= _COMMAND_TOKEN_NMB)
+							goto split_in_error;
+						break;
+				}
+				break;
+        
+			case WORD:
+				switch (pThis->cmdline [cmdline_index]) {
+					case ' ':
+					case '\0':
+						//end of token
+						pThis->cmdline [cmdline_index] = '\0';
+						decode_state = IDLE;
+						break;
+					case '"':
+					case '\'':
+						goto split_in_error;
+						break;
+					default:
+						break;
+				}
+				break;
+        
+#ifdef _USE_QUOTING  
+			case WORD_WITH_QUOTE_BEGIN:
+				if (pThis->cmdline [cmdline_index] == current_quote)
+					goto split_in_error;
+				else {
+					decode_state = WORD_WITH_QUOTE_WORD;
+					tkn_array[nb_token++] = &pThis->cmdline [cmdline_index];
+					if (nb_token >= _COMMAND_TOKEN_NMB)
+						goto split_in_error;
+				}
+				break;
+
+			case WORD_WITH_QUOTE_WORD:
+				if (pThis->cmdline [cmdline_index] == current_quote) {
+					pThis->cmdline [cmdline_index] = '\0';
+					decode_state = IDLE;
+				}
+				break;
+#endif /* _USE_QUOTING */
+        
+			default:
+				//not possible
+				//DBG("SPLIT ERROR");
+				//assert(false);
+				goto split_in_error;
+				break;
+		}
+		cmdline_index++;
+	}
+
+#ifdef _USE_QUOTING 
+	if ((decode_state == WORD_WITH_QUOTE_BEGIN) || (decode_state == WORD_WITH_QUOTE_WORD))
+		goto split_in_error;
+#endif /* _USE_QUOTING */
+
+	return nb_token;
+
+split_in_error:
+	return -1;
+}
 
 //*****************************************************************************
 void microrl_erase_prompt(microrl_t *pThis)
@@ -704,9 +711,6 @@ static void microrl_get_complite (microrl_t * pThis)
 	if (pThis->cmdline[pThis->cursor-1] == '\0')
 		tkn_arr[status++] = "";
 	compl_token = pThis->get_completion (pThis, status, tkn_arr);
-#ifdef _USE_QUOTING
-	restore (pThis);
-#endif
 	if (compl_token[0] != NULL) {
 		int i = 0;
 		size_t len;
