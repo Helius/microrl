@@ -11,7 +11,8 @@ BUGS and TODO:
 #include <stdio.h>
 #endif
 
-//#define DBG_TRACE
+// #define DBG_TRACE
+// #define _HISTORY_DEBUG
 #ifdef DBG_TRACE
 #include <stdio.h>
 #define DBG(...) fprintf(stderr, "\033[33m");fprintf(stderr,__VA_ARGS__);fprintf(stderr,"\033[0m");
@@ -57,7 +58,8 @@ static void print_hist (ring_history_t * pThis)
 // remove older message from ring buffer
 static void hist_erase_older (ring_history_t * pThis)
 {
-	int new_pos = pThis->begin + pThis->ring_buf [pThis->begin] + 1;
+	unsigned char* rb = (unsigned char*) pThis->ring_buf;
+	int new_pos = pThis->begin + rb [pThis->begin] + 1;
 	if (new_pos >= _RING_HISTORY_LEN)
 		new_pos = new_pos - _RING_HISTORY_LEN;
 
@@ -80,11 +82,13 @@ static int hist_is_space_for_new (ring_history_t * pThis, int len)
 	return false;
 }
 
+#define MAX_COMMAND_LINE_LEN  (256)
 //*****************************************************************************
 // put line to ring buffer
 static void hist_save_line (ring_history_t * pThis, char * line, int len)
 {
-	if (len > _RING_HISTORY_LEN - 2)
+	//DBG("len = %d\n", len);
+	if (len > MAX_COMMAND_LINE_LEN - 2)
 		return;
 	while (!hist_is_space_for_new (pThis, len)) {
 		hist_erase_older (pThis);
@@ -117,12 +121,14 @@ static void hist_save_line (ring_history_t * pThis, char * line, int len)
 static void hist_copy_line_from_index(ring_history_t * pThis, int index, char* line)
 {
 	int header = index;
-	if (pThis->ring_buf [header] + header < _RING_HISTORY_LEN) {
-		memcpy (line, pThis->ring_buf + header + 1, pThis->ring_buf[header]);
+	unsigned char* rb = (unsigned char*) pThis->ring_buf;
+
+	if (rb [header] + header < _RING_HISTORY_LEN) {
+		memcpy (line, rb + header + 1, rb[header]);
 	} else {
 		int part0 = _RING_HISTORY_LEN - header - 1;
-		memcpy (line, pThis->ring_buf + header + 1, part0);
-		memcpy (line + part0, pThis->ring_buf, pThis->ring_buf[header] - part0);
+		memcpy (line, rb + header + 1, part0);
+		memcpy (line + part0, rb, rb[header] - part0);
 	}
 }
 
@@ -131,10 +137,11 @@ static void hist_copy_line_from_index(ring_history_t * pThis, int index, char* l
 static int hist_restore_line (ring_history_t * pThis, char * line, int dir)
 {
 	int cnt = 0;
+	unsigned char* rb = (unsigned char*) pThis->ring_buf;
 	// count history record
 	int header = pThis->begin;
-	while (pThis->ring_buf [header] != 0) {
-		header += pThis->ring_buf [header] + 1;
+	while (rb [header] != 0) {
+		header += rb [header] + 1;
 		if (header >= _RING_HISTORY_LEN)
 			header -= _RING_HISTORY_LEN;
 		cnt++;
@@ -145,25 +152,25 @@ static int hist_restore_line (ring_history_t * pThis, char * line, int dir)
 			int header = pThis->begin;
 			int j = 0;
 			// found record for 'pThis->cur' index
-			while ((pThis->ring_buf [header] != 0) && (cnt - j -1 != pThis->cur)) {
-				header += pThis->ring_buf [header] + 1;
+			while ((rb [header] != 0) && (cnt - j -1 != pThis->cur)) {
+				header += rb [header] + 1;
 				if (header >= _RING_HISTORY_LEN)
 					header -= _RING_HISTORY_LEN;
 				j++;
 			}
-			if (pThis->ring_buf[header]) {
+			if (rb[header]) {
 					pThis->cur++;
 				// obtain saved line
-				if (pThis->ring_buf [header] + header < _RING_HISTORY_LEN) {
+				if (rb [header] + header < _RING_HISTORY_LEN) {
 					memset (line, 0, _COMMAND_LINE_LEN);
-					memcpy (line, pThis->ring_buf + header + 1, pThis->ring_buf[header]);
+					memcpy (line, rb + header + 1, rb[header]);
 				} else {
 					int part0 = _RING_HISTORY_LEN - header - 1;
 					memset (line, 0, _COMMAND_LINE_LEN);
-					memcpy (line, pThis->ring_buf + header + 1, part0);
-					memcpy (line + part0, pThis->ring_buf, pThis->ring_buf[header] - part0);
+					memcpy (line, rb + header + 1, part0);
+					memcpy (line + part0, rb, rb[header] - part0);
 				}
-				return pThis->ring_buf[header];
+				return rb[header];
 			}
 		}
 	} else {
@@ -172,14 +179,14 @@ static int hist_restore_line (ring_history_t * pThis, char * line, int dir)
 			int header = pThis->begin;
 			int j = 0;
 
-			while ((pThis->ring_buf [header] != 0) && (cnt - j != pThis->cur)) {
-				header += pThis->ring_buf [header] + 1;
+			while ((rb [header] != 0) && (cnt - j != pThis->cur)) {
+				header += rb [header] + 1;
 				if (header >= _RING_HISTORY_LEN)
 					header -= _RING_HISTORY_LEN;
 				j++;
 			}
 			hist_copy_line_from_index(pThis, header, line);
-			return pThis->ring_buf[header];
+			return rb[header];
 		} else {
 			/* empty line */
 			return 0;
@@ -249,7 +256,7 @@ void microrl_print_history (microrl_t * pThis)
 
 	i = pHist->begin;
 	while (i != pHist->end) {
-		size = pHist->ring_buf[i];
+		size = ((unsigned char*)pHist->ring_buf)[i]; //size is always >0, cast avoid error when line > 128
 		i = microrl_get_histo_index(i+1);
 		microrl_display_histo_number(pThis, hist_number++);
 		for(j = 0; j < size; j++) {
@@ -277,7 +284,7 @@ static int hist_get_start_offset(ring_history_t* pHist, int hist_index)
 		if (hist_number == hist_index)
 			return i;
 
-		size = pHist->ring_buf[i];
+		size = ((unsigned char*) pHist->ring_buf)[i];
 		i = microrl_get_histo_index(i+ 1 + size);
 		hist_number++;
 	}
@@ -381,12 +388,12 @@ static int split(microrl_t* pThis, int limit, char const ** tkn_array)
 		}
 		cmdline_index++;
 	}
+	pThis->cmdline [cmdline_index] = '\0';
 
 #ifdef _USE_QUOTING 
 	if ((decode_state == WORD_WITH_QUOTE_BEGIN) || (decode_state == WORD_WITH_QUOTE_WORD))
 		goto split_in_error;
 #endif /* _USE_QUOTING */
-
 	return nb_token;
 
 split_in_error:
@@ -753,7 +760,7 @@ int microrl_cp_histo_line(microrl_t* pThis, int indexHisto)
 	begin = hist_get_start_offset(&pThis->ring_hist, indexHisto);
 	if (begin != -1) {
 		hist_copy_line_from_index(&pThis->ring_hist, begin, pThis->cmdline);
-		pThis->cmdlen = pThis->ring_hist.ring_buf[begin];
+		pThis->cmdlen = ((unsigned char*)pThis->ring_hist.ring_buf)[begin];
 		r = true;
 	}
 
