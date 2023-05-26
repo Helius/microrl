@@ -192,7 +192,7 @@ static int split (microrl_t * pThis, int limit, char const ** tkn_arr)
 	int ind = 0;
 	while (1) {
 		// go to the first whitespace (zerro for us)
-		while ((pThis->cmdline [ind] == '\0') && (ind < limit)) {
+		while ((ind < limit) && (pThis->cmdline [ind] == '\0')) {
 			ind++;
 		}
 		if (!(ind < limit)) return i;
@@ -201,7 +201,7 @@ static int split (microrl_t * pThis, int limit, char const ** tkn_arr)
 			return -1;
 		}
 		// go to the first NOT whitespace (not zerro for us)
-		while ((pThis->cmdline [ind] != '\0') && (ind < limit)) {
+		while ((ind < limit) && (pThis->cmdline [ind] != '\0')) {
 			ind++;
 		}
 		if (!(ind < limit)) return i;
